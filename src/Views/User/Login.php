@@ -18,7 +18,7 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="/Assets/CSS/Styles.css">
 </head>
-<body>
+<body class="auth-page">
     <div class="card" role="main" aria-labelledby="login-heading">
         <h1 id="login-heading">Sign in to your account</h1>
 

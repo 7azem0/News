@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Digital Newsstand</title>
-    <link rel="stylesheet" href="assets/styles.css">
+    <link rel="stylesheet" href="../../Assets/CSS/Styles.css">
 </head>
 <body>
     <header>
