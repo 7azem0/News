@@ -1,4 +1,5 @@
 <h1>READ ALL</h1>
+
 <h2> Ensure Docker is installed. </h2>
 
 - After getting your clone, CREATE the working environment through:<br>
@@ -8,12 +9,81 @@ NOTE : This command will run only one time After clonning the repo.<br>
 - Commit frequently and describe any changes to the core env.
 - When creating a new Table in the database, provide an ERD in the group chat.
 - To stop the Docker containers :<br>
-  "docker-compose stop"
+  "docker-compose stop"<br>
   and to start them again : "docker-compose start"
 </h2>
 
+</br>
+</br>
+
+<h2> Database Import Instructions </h2>
+
+- Inside the project, there is a file named <b>news_dump.sql</b> containing the SQL dump.<br>
+  This file contains the <b>tables + sample data</b> used by the project.
+
+- After running the Docker environment for the first time, IMPORT the database through the following steps:
+
+</br>
+
+<b>1. Copy the SQL dump into the MySQL container</b><br>
+Use this command (from the project root folder):
+<pre>
+docker cp database/news_dump.sql mysql_db:/tmp/news_dump.sql
+</pre>
+
+</br>
+
+<b>2. Enter the MySQL container</b>
+<pre>
+docker exec -it mysql_db bash
+</pre>
+
+</br>
+
+<b>3. Login into MySQL</b>
+<pre>
+mysql -u root -p
+</pre>
+Password (from docker-compose): <b>root</b>
+
+</br>
+
+<b>4. Create the database and switch to it</b>
+<pre>
+DROP DATABASE IF EXISTS News;
+CREATE DATABASE News;
+USE News;
+</pre>
+
+</br>
+
+<b>5. Import the SQL dump</b>
+<pre>
+SOURCE /tmp/news_dump.sql;
+</pre>
+
+</br>
+
+<b>6. Verification (optional)</b><br>
+After importing, you can check that everything is correct:
+<pre>
+SHOW TABLES;
+</pre>
+
+You should see the list of tables (articles, users, categories, subscriptions, etc.)
+
+</br>
+
+<b>Note:</b> Repeat this process ONLY when a new SQL dump is pushed to the repository.
+
+</br>
+</br>
+
+
+
 <h1>Responsabilies :</h1> 
 </br>
+
 <h2>1: Content Delivery & Reading Experience</h2>
 
 - Focus: Everything related to articles, magazines, languages, and how users read/view them.
@@ -37,8 +107,10 @@ NOTE : This command will run only one time After clonning the repo.<br>
 - Display interactive graphics & data visualizations inside articles.
 
 - Support viewing full issues (downloadable magazines/newspapers).
+
 </br>
 </br>
+
 <h2>2: Discovery, Search & Personalization</h2>
 
 - Focus: How users find content, how content is organized, and how content is recommended.
@@ -68,8 +140,10 @@ NOTE : This command will run only one time After clonning the repo.<br>
 - Manage tags, metadata, and filtering logic.
 
 - Implement user “favorites” system for saved articles.
+
 </br>
 </br>
+
 <h2>3: User Accounts & Subscription System</h2>
 
 - Focus: Everything involving user management, subscription plans, and permissions.
@@ -77,7 +151,7 @@ NOTE : This command will run only one time After clonning the repo.<br>
 - Main Responsibilities
 
 - User registration, login, logout.
- 
+
 - Manage subscription plans:
 
 - Premium (unlimited access)
@@ -93,7 +167,7 @@ NOTE : This command will run only one time After clonning the repo.<br>
 - Auto-renew on/off
 
 - Payment status handling
- 
+
 - User profile page:
 
 - Account info
@@ -103,8 +177,10 @@ NOTE : This command will run only one time After clonning the repo.<br>
 - Saved articles
 
 - Sync user data across devices (saved articles, preferences).
+
 </br>
 </br>
+
 <h2>4: Backend Infrastructure, Database & API Integration</h2>
 
 - Focus: The foundation — servers, databases, APIs, performance, and content sources.
@@ -124,6 +200,7 @@ NOTE : This command will run only one time After clonning the repo.<br>
    - User management
 
    - Subscription validation
+
 - Integrate external content/news sources if required.
 
 - Handle downloading & storing newspaper/magazine issues.
@@ -133,3 +210,5 @@ NOTE : This command will run only one time After clonning the repo.<br>
 - Manage performance optimization (caching, CDNs, fast loading).
 
 - Manage push notifications or alerts (optional).
+
+</h2>
