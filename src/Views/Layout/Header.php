@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Digital Newsstand</title>
-    <link rel="stylesheet" href="/public/css/styles.css">
+    <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-<header>
-    <h1>Digital Newsstand</h1>
-</header>
-<main>
+    <header>
+        <h1>Digital Newsstand</h1>
+        <nav>
+            <a href="index.php?page=Home">Home</a>
+            <a href="index.php?page=article">Articles</a>
+            <a href="index.php?page=Login">Login</a>
+        </nav>
+    </header>
+    <main>

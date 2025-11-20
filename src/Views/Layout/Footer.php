@@ -1,6 +1,6 @@
-</main>
-<footer>
-    <p>© 2025 Digital Newsstand</p>
-</footer>
+    </main>
+    <footer>
+        <p>&copy; <?php echo date('Y'); ?> Digital Newsstand. All rights reserved.</p>
+    </footer>
 </body>
 </html>

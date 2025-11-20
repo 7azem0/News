@@ -1,6 +1,6 @@
 <?php
-// /views/User/Register.php
-$action = $action ?? 'index.php?page=register';
+// /views/User/ForgotPassword.php
+$action = $action ?? 'index.php?page=forgot-password';
 $old = $old ?? [];
 $errors = $errors ?? [];
 $message = $message ?? null;
@@ -12,13 +12,13 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Register</title>
+    <title>Forgot Password</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="/Assets/CSS/Styles.css">
 </head>
 <body>
-    <div class="card" role="main" aria-labelledby="register-heading">
-        <h1 id="register-heading">Create an account</h1>
+    <div class="card" role="main" aria-labelledby="forgot-heading">
+        <h1 id="forgot-heading">Reset your password</h1>
 
         <?php if (!empty($message)): ?>
             <div class="message"><?= e($message) ?></div>
@@ -44,30 +44,14 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
             <?php endif; ?>
 
             <div class="field">
-                <label for="username">Username</label>
-                <input id="username" type="text" name="username" required
-                       value="<?= e($old['username'] ?? '') ?>" placeholder="Your username">
-            </div>
-
-            <div class="field">
                 <label for="email">Email</label>
                 <input id="email" type="email" name="email" required
                        value="<?= e($old['email'] ?? '') ?>" placeholder="you@example.com">
             </div>
 
-            <div class="field">
-                <label for="password">Password</label>
-                <input id="password" type="password" name="password" required placeholder="Password">
-            </div>
-
-            <div class="field">
-                <label for="confirm_password">Confirm Password</label>
-                <input id="confirm_password" type="password" name="confirm_password" required placeholder="Confirm Password">
-            </div>
-
             <div class="actions">
-                <button type="submit">Register</button>
-                <a class="muted" href="index.php?page=Login">Already have an account?</a>
+                <button type="submit">Send Reset Link</button>
+                <a class="muted" href="index.php?page=Login">Back to login</a>
             </div>
         </form>
     </div>
