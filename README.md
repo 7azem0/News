@@ -3,17 +3,22 @@
 <h2> Ensure Docker is installed. </h2>
 
 - After getting your clone, CREATE the working environment through:<br>
-"docker-compose up -d" OR "docker compose up -d"<br>
-NOTE : This command will run only one time After clonning the repo.<br>
+<pre>
+"docker-compose up -d" OR "docker compose up -d"
+</pre>
+NOTE : This command will run only one time After clonning the repo.
+<br>
 - You are free to change the yml file to fit your device.
 - Commit frequently and describe any changes to the core env.
-- When creating a new Table in the database, provide an ERD in the group chat.
-- To stop the Docker containers :<br>
-  "docker-compose stop"<br>
-  and to start them again : "docker-compose start"
-</h2>
-
-</br>
+<br>
+- To stop the Docker containers :
+<pre>
+"docker-compose stop"
+</pre>
+- To start them again:<br>
+<pre>
+"docker-compose start"</h2>
+</pre>
 </br>
 
 <h2> Database Import Instructions </h2>
