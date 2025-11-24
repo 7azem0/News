@@ -33,7 +33,7 @@ NOTE : This command will run only one time After clonning the repo.
 <b>1. Copy the SQL dump into the MySQL container</b><br>
 Use this command (from the project root folder):
 <pre>
-docker cp database/news_dump.sql mysql_db:/tmp/news_dump.sql
+docker cp news_dump.sql mysql_db:/tmp/news_dump.sql
 </pre>
 
 </br>
