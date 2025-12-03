@@ -1,5 +1,54 @@
 <h1>READ ALL</h1>
 
+<h2>Workflow: Cloning the Repository, Creating a Branch, and Pushing Changes </h2>
+
+Follow these steps to properly clone the repository, create your own working branch, and push updates.
+
+</br>
+
+<b>1. Clone the repository</b><br>
+Run this command on your machine:
+
+<pre> git clone https://github.com/7azem0/News </pre> </br>
+
+<b>2. Open VS Code and create a new terminal then navigate to the project root folder</b>
+
+<b>3. Create a new branch for your work</b><br>
+Replace <i>your-branch-name</i> with a meaningful name (example: <code>feature-login</code>).
+<pre>1 - git branch your-branch-name </pre> </br><b>Switch to your branch</b>
+<pre>2 - git checkout your-branch-name </pre> </br>
+
+<b>4. Make your changes in the project</b><br>
+Edit code, add features, fix bugs, etc.
+
+</br>
+
+<b>5. Stage your changes</b>
+
+<pre> git add . </pre> </br>
+
+<b>6. Commit your changes</b><br>
+Write a meaningful commit message.
+
+<pre> git commit -m "Describe what you changed" </pre> </br>
+
+<b>7. Push your branch to GitHub</b>
+
+<pre> git push --set-upstream origin your-branch-name </pre> </br>
+
+<b>8. Open a Pull Request</b><br>
+Go to the GitHub repository:<br>
+<code>https://github.com/7azem0/News
+</code><br><br>
+You will see a message prompting you to create a Pull Request for your new branch.
+Click <b>"Compare & Pull Request"</b>, write a description, and submit it.
+
+</br> </br>
+
+<b>Note:</b> Never push directly to the <code>main</code> branch. Always work through your own branch and open a Pull Request.
+
+</br> </br>
+
 <h2> Ensure Docker is installed. </h2>
 
 - After getting your clone, CREATE the working environment through:<br>
@@ -20,6 +69,8 @@ NOTE : This command will run only one time After clonning the repo.
 "docker-compose start"</h2>
 </pre>
 </br>
+
+
 
 <h2> Database Import Instructions </h2>
 
@@ -83,6 +134,39 @@ You should see the list of tables (articles, users, categories, subscriptions, e
 
 </br>
 </br>
+
+<h2> Database Export Instructions </h2>
+
+When you update the database structure or sample data, you need to export a fresh SQL dump and include it in the repository.
+
+Follow the steps below to generate a new <b>news_dump.sql</b> file from the MySQL Docker container:
+
+</br>
+
+<b>1. Enter the MySQL container</b>
+
+<pre> docker exec -it mysql_db bash </pre> </br>
+
+<b>2. Export the News database using mysqldump</b>
+
+<pre> mysqldump -u root -p News > /tmp/news_dump.sql </pre>
+
+Password (from docker-compose): <b>root</b>
+
+</br>
+
+<b>3. Copy the exported SQL file from the container to your host machine</b><br>
+Run this command outside the container(In the VS terminal in the project root):
+
+<pre> docker cp mysql_db:/tmp/news_dump.sql ./news_dump.sql </pre> </br>
+
+<b>4. Commit the new SQL dump to the repository</b>
+
+<pre> git add news_dump.sql git commit -m "Updated database dump" git push </pre> </br>
+
+<b>Note:</b> Perform the export ONLY when database changes must be shared with the team.
+
+</br> </br>
 
 
 
