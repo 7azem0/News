@@ -1,5 +1,4 @@
 <?php
-require_once "config/db.php";
 
 class TranslationService {
     private $conn;
@@ -29,33 +28,38 @@ class TranslationService {
         $this->conn = $db->connect();
     }
 
-    /* public function translate($article_id, $target_lang) {
+    /*
+    public function translate($article_id, $target_lang) {
         // Check cache
         $stmt = $this->conn->prepare("SELECT translated_text FROM translations WHERE article_id=? AND language=?");
         $stmt->execute([$article_id, $target_lang]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row) return $row['translated_text'];
+        if($row) return $row['translated_text'];
 
-        // If not cached, use free API or mock
-        $stmt = $this->conn->prepare("SELECT content FROM articles WHERE id=?");
+        // Fetch article
+        $stmt = $this->conn->prepare("SELECT title, content FROM articles WHERE id=?");
         $stmt->execute([$article_id]);
         $article = $stmt->fetch(PDO::FETCH_ASSOC);
+        if(!$article) return null;
 
-        // Mock translation for demo (replace with real API)
-        $translated = "[{$target_lang} translation] " . $article['content'];
+        // Translate (old flow)
+        $translated = some_old_translate_function($article['content'], $target_lang);
 
-        // Save to DB
-        $stmt = $this->conn->prepare(
-            "INSERT INTO translations(article_id, language, translated_text) VALUES (?, ?, ?)"
-        );
+        // Save
+        $stmt = $this->conn->prepare("INSERT INTO translations (article_id, language, translated_text) VALUES (?, ?, ?)");
         $stmt->execute([$article_id, $target_lang, $translated]);
 
         return $translated;
-    } */
+    }
+    */
 
+    public function translateText(string $text, string $targetLang, string $sourceLang = 'auto') {
+        // basic validation
+        if (trim($text) === '') return '';
+        if (!isset($this->availableLangs[$targetLang])) {
+            throw new Exception("Unsupported target language: $targetLang");
+        }
 
-
-    public function translateText(string $text,string $targetLang, string $sourceLang = 'auto') {
         $postData = [
             'q' => $text,
             'source' => $sourceLang,
@@ -70,48 +74,68 @@ class TranslationService {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/x-www-form-urlencoded'
         ]);
+        // timeouts
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+
         $resp = curl_exec($ch);
         $err = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if($err) throw new Exception("Error in cURL: $err");
+        if ($err) throw new Exception("Error in cURL: $err");
+        if ($httpCode >= 400) throw new Exception("Translation API returned HTTP code $httpCode");
 
         $data = json_decode($resp, true);
-        if(isset($data['error'])) {
+        if ($data === null) throw new Exception("Invalid JSON response from translation API");
+        if (isset($data['error'])) {
             throw new Exception("API Error: " . $data['error']);
         }
 
-        return $data['translatedText'] ?? null;
+        // LibreTranslate uses 'translatedText'
+        return $data['translatedText'] ?? $data['translated_text'] ?? null;
     }
 
-    public function translateArticle(int $articleId, string $targetLang): array{
-        // Fetch article
-        $stmt = $this->conn->prepare("SELECT title_translated, content_translated FROM translations WHERE article_id=? AND target_lang=?");
+    public function translateArticle(int $articleId, string $targetLang): array {
+        // validate target language
+        if (!isset($this->availableLangs[$targetLang])) {
+            throw new Exception("Unsupported target language: $targetLang");
+        }
+
+        // Check cache (matches your translations table: article_id, language, translated_text)
+        $stmt = $this->conn->prepare("SELECT translated_text FROM translations WHERE article_id = ? AND language = ?");
         $stmt->execute([$articleId, $targetLang]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if($row) return $row;
-        
-        $stmt = $this->conn->prepare("SELECT title, content FROM articles WHERE id=?");
+        if ($row && !empty($row['translated_text'])) {
+            $data = json_decode($row['translated_text'], true);
+            if (is_array($data) && isset($data['title']) && isset($data['content'])) {
+                return $data;
+            }
+            // Fallback: if translated_text was plain content, return it as content
+            return ['title' => null, 'content' => $row['translated_text']];
+        }
+
+        // Fetch original article
+        $stmt = $this->conn->prepare("SELECT title, content FROM articles WHERE id = ?");
         $stmt->execute([$articleId]);
         $article = $stmt->fetch(PDO::FETCH_ASSOC);
-        if(!$article) throw new Exception("Article not found");
+        if (!$article) throw new Exception("Article not found");
 
+        // Translate pieces
         $translatedTitle = $this->translateText($article['title'], $targetLang);
         $translatedContent = $this->translateText($article['content'], $targetLang);
-        
-        // Save translation
+
+        // Save as JSON in translated_text
+        $payload = json_encode(['title' => $translatedTitle, 'content' => $translatedContent], JSON_UNESCAPED_UNICODE);
+
         $stmt = $this->conn->prepare(
-            "INSERT INTO translations (article_id, target_lang, title_translated, content_translated, provider)
-             VALUES (:aid, :lang, :title, :content, 'libretranslate')
-             ON DUPLICATE KEY UPDATE 
-                title_translated = VALUES(title_translated),
-                content_translated = VALUES(content_translated)"
+            "INSERT INTO translations (article_id, language, translated_text)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE translated_text = VALUES(translated_text)"
         );
-        $stmt->execute([$articleId, $targetLang, $translatedTitle, $translatedContent]);
-        return [
-            'title'=>$translatedTitle, 
-            'content'=>$translatedContent
-        ];
+        $stmt->execute([$articleId, $targetLang, $payload]);
+
+        return ['title' => $translatedTitle, 'content' => $translatedContent];
     }
 }
