@@ -17,6 +17,12 @@ class Router {
                 (new ArticleController())->index();
                 break;
 
+            // Search routes
+            case "search":
+                include "Controllers/Search_C.php";
+                (new SearchController())->index();
+                break;
+
             // User routes
             case "Login":
                 include "Controllers/User_C.php";

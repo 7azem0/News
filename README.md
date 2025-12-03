@@ -53,7 +53,7 @@ Click <b>"Compare & Pull Request"</b>, write a description, and submit it.
 
 - After getting your clone, CREATE the working environment through:<br>
 <pre>
-"docker-compose up -d" OR "docker compose up -d"
+"docker-compose up -d --build" OR "docker compose up -d --build"
 </pre>
 NOTE : This command will run only one time After clonning the repo.
 <br>
@@ -70,8 +70,65 @@ NOTE : This command will run only one time After clonning the repo.
 </pre>
 </br>
 
+<h2> Accessing the MySQL Container & Using the MySQL CLI </h2>
 
+- After starting the Docker environment, you may need to access the MySQL container
+  to run queries, inspect tables, or troubleshoot issues.
 
+</br>
+
+<b>1. Enter the MySQL container</b><br>
+Run this command from the project root directory:
+<pre>
+docker exec -it mysql_db bash
+</pre>
+
+</br>
+
+<b>2. Login to the MySQL server inside the container</b><br>
+Once inside the container, run:
+<pre>
+mysql -u root -p
+</pre>
+Password (from <b>docker-compose.yml</b>): <b>root</b>
+
+</br>
+
+<b>3. Select the project database</b><br>
+If you have already imported the SQL dump, switch to the project database:
+<pre>
+USE News;
+</pre>
+
+</br>
+
+<b>4. Basic MySQL commands you can use</b>
+
+- Show all databases:
+<pre>
+SHOW DATABASES;
+</pre>
+
+- Show all tables in the current database:
+<pre>
+SHOW TABLES;
+</pre>
+
+- View the structure of a table:
+<pre>
+DESCRIBE table_name;
+</pre>
+</br>
+
+<b>5. Exit MySQL and the container</b><br>
+To exit the MySQL CLI:
+<pre>
+EXIT;
+</pre>
+</br>
+
+<b>Note:</b> These steps allow you to interact directly with your MySQL database for debugging, testing, and verifying application behaviour.
+</br>
 <h2> Database Import Instructions </h2>
 
 - Inside the project, there is a file named <b>news_dump.sql</b> containing the SQL dump.<br>

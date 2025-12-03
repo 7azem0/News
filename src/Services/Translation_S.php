@@ -2,7 +2,8 @@
 
 class TranslationService {
     private $conn;
-    private $apiUrl = "https://libretranslate.de/translate";
+    private $apiUrl;
+    private $apiKey;
 
     public $availableLangs = [
         'ar'=>'Arabic',
@@ -26,32 +27,12 @@ class TranslationService {
     public function __construct() {
         $db = new Database();
         $this->conn = $db->connect();
+
+        // Allow overriding the translation API endpoint and key via env vars.
+        // Defaults to the public LibreTranslate instance (no key required).
+        $this->apiUrl = getenv('LIBRE_TRANSLATE_URL');
     }
 
-    /*
-    public function translate($article_id, $target_lang) {
-        // Check cache
-        $stmt = $this->conn->prepare("SELECT translated_text FROM translations WHERE article_id=? AND language=?");
-        $stmt->execute([$article_id, $target_lang]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if($row) return $row['translated_text'];
-
-        // Fetch article
-        $stmt = $this->conn->prepare("SELECT title, content FROM articles WHERE id=?");
-        $stmt->execute([$article_id]);
-        $article = $stmt->fetch(PDO::FETCH_ASSOC);
-        if(!$article) return null;
-
-        // Translate (old flow)
-        $translated = some_old_translate_function($article['content'], $target_lang);
-
-        // Save
-        $stmt = $this->conn->prepare("INSERT INTO translations (article_id, language, translated_text) VALUES (?, ?, ?)");
-        $stmt->execute([$article_id, $target_lang, $translated]);
-
-        return $translated;
-    }
-    */
 
     public function translateText(string $text, string $targetLang, string $sourceLang = 'auto') {
         // basic validation
@@ -66,6 +47,11 @@ class TranslationService {
             'target' => $targetLang,
             'format' => 'text'
         ];
+
+        // Optional API key support (for self-hosted LibreTranslate or compatible APIs)
+        if (!empty($this->apiKey)) {
+            $postData['api_key'] = $this->apiKey;
+        }
 
         $ch = curl_init($this->apiUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
