@@ -2,7 +2,7 @@
 // /Router.php
 
 class Router {
-    public static function route($page) {
+    public static function route($page, $selectedLang = 'en') {
         switch ($page) {
             // Home page
             case "":
