@@ -100,4 +100,13 @@ class UserController {
         include "views/User/ForgotPassword.php";
     }
 
+    /* --------------------------------------------------------------
+       Logout
+    -------------------------------------------------------------- */
+    public function logout() {
+        session_start();
+        session_destroy();
+        redirect('?page=Home');
+    }
+
 }

@@ -1,12 +1,20 @@
 <?php
 require_once "Config/DataBase_Connection.php";
 require_once "Services/Translation_S.php";
+require_once "Models/User.php";
 
 $db = new Database();
 $PDO = $db->connect();
 $translator = new TranslationService();
 
-$availableLangs = $translator->availableLangs;
+// Get user subscription to filter available languages
+$userModel = new User();
+$subscription = null;
+if (isset($_SESSION['user_id'])) {
+    $subscription = $userModel->getSubscription($_SESSION['user_id']);
+}
+$plan = $subscription ? $subscription['plan'] : null;
+$availableLangs = $translator->getAvailableLangsForPlan($plan);
 
 $articleId = (int)($_GET['id'] ?? 1);
 $selectedLang = $_GET['lang'] ?? 'en';
