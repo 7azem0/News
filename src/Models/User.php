@@ -55,4 +55,18 @@ class User {
 
         return false;
     }
+
+    /**
+     * Get user subscription
+     */
+    public function getSubscription($userId) {
+        try {
+            $stmt = $this->conn->prepare("SELECT * FROM subscriptions WHERE user_id = ? AND (expires_at IS NULL OR expires_at > NOW()) ORDER BY id DESC LIMIT 1");
+            $stmt->execute([$userId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Return null if table doesn't exist or other DB error
+            return null;
+        }
+    }
 }

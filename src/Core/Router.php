@@ -39,6 +39,16 @@ class Router {
                 (new UserController())->forgotPassword();
                 break;
 
+            case "logout":
+                include "Controllers/User_C.php";
+                (new UserController())->logout();
+                break;
+
+            case "subscribe":
+                include "Controllers/Subscription_C.php";
+                (new SubscriptionController())->subscribe();
+                break;
+
             default:
                 http_response_code(404);
                 echo "Page not found";

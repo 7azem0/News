@@ -5,7 +5,7 @@ class TranslationService {
     private $apiUrl;
     private $apiKey;
 
-    public $availableLangs = [
+    private $allLangs = [
         'ar'=>'Arabic',
         'en'=>'English',
         'fr'=>'French',
@@ -24,20 +24,23 @@ class TranslationService {
         'fa'=>'Persian'
     ];
 
+    public $availableLangs = [];
+
     public function __construct() {
         $db = new Database();
         $this->conn = $db->connect();
 
         // Allow overriding the translation API endpoint and key via env vars.
         // Defaults to the public LibreTranslate instance (no key required).
-        $this->apiUrl = getenv('LIBRE_TRANSLATE_URL');
+        $this->apiUrl = getenv('LIBRE_TRANSLATE_URL') ?: 'https://libretranslate.com/translate';
     }
 
 
-    public function translateText(string $text, string $targetLang, string $sourceLang = 'auto') {
+    public function translateText(string $text, string $targetLang, string $sourceLang = 'auto', string $plan = null) {
         // basic validation
         if (trim($text) === '') return '';
-        if (!isset($this->availableLangs[$targetLang])) {
+        // Allow all languages for translation, plan restrictions are handled at higher level
+        if (!isset($this->allLangs[$targetLang])) {
             throw new Exception("Unsupported target language: $targetLang");
         }
 
@@ -82,10 +85,27 @@ class TranslationService {
         return $data['translatedText'] ?? $data['translated_text'] ?? null;
     }
 
-    public function translateArticle(int $articleId, string $targetLang): array {
-        // validate target language
-        if (!isset($this->availableLangs[$targetLang])) {
-            throw new Exception("Unsupported target language: $targetLang");
+    public function getAvailableLangsForPlan(string $plan = null): array {
+        if ($plan === 'Plus') {
+            return $this->allLangs; // All languages for Plus plan
+        } elseif ($plan === 'Basic') {
+            return [
+                'ar' => 'Arabic',
+                'en' => 'English'
+            ];
+        } elseif ($plan === 'Pro') {
+            return []; // No translation access for Pro plan
+        } else {
+            // For other plans or no plan, return empty
+            return [];
+        }
+    }
+
+    public function translateArticle(int $articleId, string $targetLang, string $plan = null): array {
+        // validate target language based on plan
+        $allowedLangs = $this->getAvailableLangsForPlan($plan);
+        if (!isset($allowedLangs[$targetLang])) {
+            throw new Exception("Unsupported target language: $targetLang for plan: $plan");
         }
 
         // Check cache (matches your translations table: article_id, language, translated_text)
