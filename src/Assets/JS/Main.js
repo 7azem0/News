@@ -49,3 +49,32 @@
         initSearchToggle();
     }
 })();
+
+
+/*
+//Start Code Halim Y Hazem Yleader
+document.addEventListener("DOMContentLoaded", function () {
+    const dropdown = document.querySelector(".user-dropdown");
+    const btn = document.querySelector("#userMenuBtn");
+    const menu = document.querySelector("#userMenu");
+
+    if (!dropdown || !btn || !menu) return;
+
+    btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        dropdown.classList.toggle("open");
+    });
+
+    menu.addEventListener("click", function (e) {
+        e.stopPropagation();
+    });
+
+    document.addEventListener("click", function () {
+        dropdown.classList.remove("open");
+    });
+
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") dropdown.classList.remove("open");
+    });
+});
+*/

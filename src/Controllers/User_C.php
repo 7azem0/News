@@ -104,7 +104,9 @@ class UserController {
        Logout
     -------------------------------------------------------------- */
     public function logout() {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
         session_destroy();
         redirect('?page=Home');
     }

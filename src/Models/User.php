@@ -47,7 +47,9 @@ class User {
         if (!$user) return false;
 
         if (password_verify($password, $user['password'])) {
-            session_start();
+            if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
             $_SESSION['user_id']  = $user['id'];
             $_SESSION['username'] = $user['username'];
             return true;
