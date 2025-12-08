@@ -1,6 +1,11 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../Models/User.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!class_exists('User')) {
+    require_once __DIR__ . '/../../Models/User.php';
+}
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $username = $_SESSION['username'] ?? '';
@@ -21,6 +26,7 @@ if ($isLoggedIn) {
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../Assets/CSS/Styles.css">
     <link rel="stylesheet" href="../../Assets/CSS/pages.css">
+    <link rel="stylesheet" href="../../Assets/CSS/account.css">
 
 </head>
 <body>

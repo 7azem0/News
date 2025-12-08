@@ -103,12 +103,106 @@ class UserController {
     /* --------------------------------------------------------------
        Logout
     -------------------------------------------------------------- */
+    /* --------------------------------------------------------------
+       Logout
+    -------------------------------------------------------------- */
     public function logout() {
+        // التأكد من بدء الجلسة
         if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+            session_start();
+        }
+        
+        // تدمير الجلسة
         session_destroy();
+        
+        // التحويل للصفحة الرئيسية
         redirect('?page=Home');
+    } // <--- لازم نقفل دالة الـ Logout هنا
+
+    /* --------------------------------------------------------------
+       Account Page
+    -------------------------------------------------------------- */
+
+    // Page Account Setting ( Y hazem Y ledr)
+public function account() {
+        // التأكد من بدء الجلسة
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // لو مش مسجل دخول، ارميه بره
+        if (!isset($_SESSION['user_id'])) {
+            redirect('?page=Login');
+            exit;
+        }
+
+        $userModel = new User();
+        $user_id = $_SESSION['user_id'];
+        
+        // هات بيانات المستخدم الحالية من الداتابيز
+        $currentUser = $userModel->getUserById($user_id);
+
+        $error = "";
+        $success = "";
+
+        // لو المستخدم داس على زرار Save
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $current_password = $_POST['current_password'] ?? '';
+            $new_username = sanitize($_POST['username']);
+            $new_email = sanitize($_POST['email']);
+            $new_password = $_POST['new_password'] ?? '';
+            $confirm_password = $_POST['confirm_password'] ?? '';
+
+            // 1. أهم خطوة: التحقق من الباسورد الحالية
+            if (empty($current_password)) {
+                $error = "Current password is required to save changes.";
+            } elseif (!password_verify($current_password, $currentUser['password'])) {
+                $error = "Incorrect current password. Changes not saved.";
+            } else {
+                // --- الباسورد الحالية صح، نبدأ التعديل ---
+
+                // أ) تعديل البيانات الشخصية (الاسم والإيميل)
+                if ($new_username != $currentUser['username'] || $new_email != $currentUser['email']) {
+                    if ($userModel->updateProfile($user_id, $new_username, $new_email)) {
+                        // تحديث السيشـن بالبيانات الجديدة
+                        $_SESSION['username'] = $new_username;
+                        $_SESSION['email'] = $new_email;
+                        $success = "Profile updated successfully.";
+                        // تحديث المتغير عشان يظهر في الفورم فوراً
+                        $currentUser['username'] = $new_username;
+                        $currentUser['email'] = $new_email;
+                    } else {
+                        $error = "Failed to update profile.";
+                    }
+                }
+
+                // ب) تعديل الباسورد (لو الخانات مش فاضية)
+                if (!empty($new_password)) {
+                    if ($new_password !== $confirm_password) {
+                        $error = "New passwords do not match.";
+                    } elseif (strlen($new_password) < 6) { // مثلاً أقل حاجة 6
+                        $error = "New password must be at least 6 characters.";
+                    } else {
+                        // تشفير الباسورد الجديدة
+                        $hashed = password_hash($new_password, PASSWORD_DEFAULT);
+                        if ($userModel->updatePassword($user_id, $hashed)) {
+                            $success .= " Password changed successfully.";
+                        } else {
+                            $error = "Failed to update password.";
+                        }
+                    }
+                }
+            }
+        }
+
+        // عرض الصفحة
+        include "views/User/account.php";
     }
 
-}
+} 
+
+
+
+    
+
+
