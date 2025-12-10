@@ -1,6 +1,11 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../Models/User.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!class_exists('User')) {
+    require_once __DIR__ . '/../../Models/User.php';
+}
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $username = $_SESSION['username'] ?? '';
@@ -20,107 +25,35 @@ if ($isLoggedIn) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../Assets/CSS/Styles.css">
+    <link rel="stylesheet" href="../../Assets/CSS/pages.css">
+    <link rel="stylesheet" href="../../Assets/CSS/account.css">
+
 </head>
 <body>
     <header>
-        <h1>Digital Newsstand</h1>
+        <h1>
+    <a href="index.php?page=Home" style="text-decoration: none; color: inherit;">
+        Digital Newsstand
+    </a>
+</h1>
         <nav>
             <a href="index.php?page=Home">Home</a>
             <a href="index.php?page=article">Articles</a>
             <?php if ($isLoggedIn): ?>
-                <div class="profile-dropdown">
-                    <button class="profile-toggle" id="profileToggle">
+                            <div class="user-dropdown">
+                    <button class="user-btn" id="userMenuBtn">
                         👤 <?php echo htmlspecialchars($username); ?>
+                        <span class="arrow">▼</span>
                     </button>
-                    <div class="profile-menu" id="profileMenu">
-                        <div class="profile-info">
-                            <strong><?php echo htmlspecialchars($username); ?></strong>
-                            <div class="subscription-section">
-                                <?php if ($subscription): ?>
-                                    <div class="current-subscription">
-                                        <span class="subscription-active">Subscription: <?php echo htmlspecialchars($subscription['plan'] ?? 'Active'); ?></span>
-                                        <button class="manage-subscription-btn" id="manageSubscriptionBtn">Manage Subscription</button>
-                                    </div>
-                                    <div class="subscription-options" id="subscriptionOptions" style="display: none;">
-                                        <h4>Change Plan</h4>
-                                        <form class="subscription-form" id="subscriptionForm" method="POST" action="?page=subscribe">
-                                            <div class="subscription-plans">
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="basic" name="plan" value="Basic" <?php echo ($subscription['plan'] === 'Basic') ? 'checked' : ''; ?>>
-                                                    <label for="basic">
-                                                        <h4>Basic</h4>
-                                                        <p>$9.99/month</p>
-                                                        <span>Access to basic articles + Arabic/English translation</span>
-                                                    </label>
-                                                </div>
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="plus" name="plan" value="Plus" <?php echo ($subscription['plan'] === 'Plus') ? 'checked' : ''; ?>>
-                                                    <label for="plus">
-                                                        <h4>Plus</h4>
-                                                        <p>$19.99/month</p>
-                                                        <span>Access to premium articles + TTS</span>
-                                                    </label>
-                                                </div>
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="pro" name="plan" value="Pro" <?php echo ($subscription['plan'] === 'Pro') ? 'checked' : ''; ?>>
-                                                    <label for="pro">
-                                                        <h4>Pro</h4>
-                                                        <p>$29.99/month</p>
-                                                        <span>All features + all languages translation + priority support</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="auto-renew-section">
-                                                <label for="autoRenew">Auto-renew subscription</label>
-                                                <input type="checkbox" id="autoRenew" name="autoRenew" checked>
-                                            </div>
-                                            <button type="submit" class="subscribe-btn" id="subscribeBtn">Update Subscription</button>
-                                        </form>
-                                    </div>
-                                <?php else: ?>
-                                    <button class="subscription-btn" id="subscriptionBtn">Subscription</button>
-                                    <div class="subscription-options" id="subscriptionOptions" style="display: none;">
-                                        <form class="subscription-form" id="subscriptionForm" method="POST" action="?page=subscribe">
-                                            <div class="subscription-plans">
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="basic" name="plan" value="Basic" checked>
-                                                    <label for="basic">
-                                                        <h4>Basic</h4>
-                                                        <p>$9.99/month</p>
-                                                        <span>Access to basic articles + Arabic/English translation</span>
-                                                    </label>
-                                                </div>
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="plus" name="plan" value="Plus">
-                                                    <label for="plus">
-                                                        <h4>Plus</h4>
-                                                        <p>$19.99/month</p>
-                                                        <span>Access to premium articles + TTS</span>
-                                                    </label>
-                                                </div>
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="pro" name="plan" value="Pro">
-                                                    <label for="pro">
-                                                        <h4>Pro</h4>
-                                                        <p>$29.99/month</p>
-                                                        <span>All features + all languages translation + priority support</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="auto-renew-section">
 
-                                                <label for="autoRenew">Auto-renew subscription</label>
-                                                <input type="checkbox" id="autoRenew" name="autoRenew" checked>
-                                            </div>
-                                            <button type="submit" class="subscribe-btn" id="subscribeBtn">Subscribe Now</button>
-                                        </form>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <a href="?page=logout">Logout</a>
+                    <div class="user-menu" id="userMenu">
+                        <a href="?page=Subscription" class="user-item">Manage Subscription</a>
+                        <a href="?page=Account" class="user-item">Account Settings</a>
+                        <a href="?page=logout" class="user-item logout">Logout</a>
                     </div>
                 </div>
+
+
             <?php else: ?>
                 <a href="index.php?page=Login">Login</a>
             <?php endif; ?>
@@ -202,8 +135,8 @@ if ($isLoggedIn) {
 
         // Profile dropdown toggle functionality
         function initProfileToggle() {
-            var profileToggle = document.getElementById('profileToggle');
-            var profileMenu = document.getElementById('profileMenu');
+            var profileToggle = document.getElementById('userMenuBtn');
+            var profileMenu = document.getElementById('userMenu');
 
             if (profileToggle && profileMenu) {
                 profileToggle.addEventListener('click', function (event) {
@@ -302,8 +235,8 @@ if ($isLoggedIn) {
         // Close dropdowns when clicking outside
         document.addEventListener('click', function(event) {
             // Close profile menu
-            var profileMenu = document.getElementById('profileMenu');
-            var profileToggle = document.getElementById('profileToggle');
+            var profileMenu = document.getElementById('userMenu');
+            var profileToggle = document.getElementById('userMenuBtn');
             if (profileMenu && profileMenu.style.display === 'block') {
                 if (!profileMenu.contains(event.target) && !profileToggle.contains(event.target)) {
                     profileMenu.style.display = 'none';
@@ -344,4 +277,12 @@ if ($isLoggedIn) {
     })();
     </script>
 
+     
     <main>
+
+    
+                 <script src="../../Assets/JS/Main.js">
+                 </script>
+                
+</body>
+</html>
