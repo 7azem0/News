@@ -38,3 +38,11 @@ Successfully implemented profile dropdown feature that replaces the login button
 - [x] Update plan descriptions to reflect translation features
 - [x] Fix database connection error in SubscriptionController
 - [x] Fix SQL column mismatch error (removed created_at column)
+
+## Move Subscription Management to Dedicated Page TODO
+
+## Pending Tasks
+- [ ] Create plans.php view in src/Views/Subscription/
+- [ ] Add plans route to Router.php
+- [ ] Modify Header.php to make username clickable and redirect to plans.php
+- [ ] Remove subscription options from profile dropdown

@@ -39,85 +39,13 @@ if ($isLoggedIn) {
                                 <?php if ($subscription): ?>
                                     <div class="current-subscription">
                                         <span class="subscription-active">Subscription: <?php echo htmlspecialchars($subscription['plan'] ?? 'Active'); ?></span>
-                                        <button class="manage-subscription-btn" id="manageSubscriptionBtn">Manage Subscription</button>
-                                    </div>
-                                    <div class="subscription-options" id="subscriptionOptions" style="display: none;">
-                                        <h4>Change Plan</h4>
-                                        <form class="subscription-form" id="subscriptionForm" method="POST" action="?page=subscribe">
-                                            <div class="subscription-plans">
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="basic" name="plan" value="Basic" <?php echo ($subscription['plan'] === 'Basic') ? 'checked' : ''; ?>>
-                                                    <label for="basic">
-                                                        <h4>Basic</h4>
-                                                        <p>$9.99/month</p>
-                                                        <span>Access to basic articles + Arabic/English translation</span>
-                                                    </label>
-                                                </div>
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="plus" name="plan" value="Plus" <?php echo ($subscription['plan'] === 'Plus') ? 'checked' : ''; ?>>
-                                                    <label for="plus">
-                                                        <h4>Plus</h4>
-                                                        <p>$19.99/month</p>
-                                                        <span>Access to premium articles + TTS</span>
-                                                    </label>
-                                                </div>
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="pro" name="plan" value="Pro" <?php echo ($subscription['plan'] === 'Pro') ? 'checked' : ''; ?>>
-                                                    <label for="pro">
-                                                        <h4>Pro</h4>
-                                                        <p>$29.99/month</p>
-                                                        <span>All features + all languages translation + priority support</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="auto-renew-section">
-                                                <label for="autoRenew">Auto-renew subscription</label>
-                                                <input type="checkbox" id="autoRenew" name="autoRenew" checked>
-                                            </div>
-                                            <button type="submit" class="subscribe-btn" id="subscribeBtn">Update Subscription</button>
-                                        </form>
                                     </div>
                                 <?php else: ?>
-                                    <button class="subscription-btn" id="subscriptionBtn">Subscription</button>
-                                    <div class="subscription-options" id="subscriptionOptions" style="display: none;">
-                                        <form class="subscription-form" id="subscriptionForm" method="POST" action="?page=subscribe">
-                                            <div class="subscription-plans">
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="basic" name="plan" value="Basic" checked>
-                                                    <label for="basic">
-                                                        <h4>Basic</h4>
-                                                        <p>$9.99/month</p>
-                                                        <span>Access to basic articles + Arabic/English translation</span>
-                                                    </label>
-                                                </div>
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="plus" name="plan" value="Plus">
-                                                    <label for="plus">
-                                                        <h4>Plus</h4>
-                                                        <p>$19.99/month</p>
-                                                        <span>Access to premium articles + TTS</span>
-                                                    </label>
-                                                </div>
-                                                <div class="subscription-plan">
-                                                    <input type="radio" id="pro" name="plan" value="Pro">
-                                                    <label for="pro">
-                                                        <h4>Pro</h4>
-                                                        <p>$29.99/month</p>
-                                                        <span>All features + all languages translation + priority support</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="auto-renew-section">
-
-                                                <label for="autoRenew">Auto-renew subscription</label>
-                                                <input type="checkbox" id="autoRenew" name="autoRenew" checked>
-                                            </div>
-                                            <button type="submit" class="subscribe-btn" id="subscribeBtn">Subscribe Now</button>
-                                        </form>
-                                    </div>
+                                    <span class="no-subscription">No active subscription</span>
                                 <?php endif; ?>
                             </div>
                         </div>
+                        <a href="index.php?page=plans">Manage Subscription</a>
                         <a href="?page=logout">Logout</a>
                     </div>
                 </div>
@@ -310,14 +238,6 @@ if ($isLoggedIn) {
                 }
             }
 
-            // Close subscription options
-            var subscriptionOptions = document.getElementById('subscriptionOptions');
-            if (subscriptionOptions && subscriptionOptions.style.display === 'block') {
-                if (!subscriptionOptions.contains(event.target)) {
-                    subscriptionOptions.style.display = 'none';
-                }
-            }
-
             // Close search popover
             var searchOverlay = document.getElementById('searchPopover');
             var searchToggle = document.querySelector('.search-toggle');
@@ -333,13 +253,11 @@ if ($isLoggedIn) {
             document.addEventListener('DOMContentLoaded', function() {
                 initSearchToggle();
                 initProfileToggle();
-                initSubscriptionToggle();
             });
         } else {
             // DOM is already ready
             initSearchToggle();
             initProfileToggle();
-            initSubscriptionToggle();
         }
     })();
     </script>
