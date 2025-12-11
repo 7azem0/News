@@ -1,6 +1,11 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../Models/User.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!class_exists('User')) {
+    require_once __DIR__ . '/../../Models/User.php';
+}
 
 $isLoggedIn = isset($_SESSION['user_id']);
 $username = $_SESSION['username'] ?? '';
@@ -20,14 +25,22 @@ if ($isLoggedIn) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../Assets/CSS/Styles.css">
+    <link rel="stylesheet" href="../../Assets/CSS/pages.css">
+    <link rel="stylesheet" href="../../Assets/CSS/account.css">
+
 </head>
 <body>
     <header>
-        <h1>Digital Newsstand</h1>
+        <h1>
+    <a href="index.php?page=Home" style="text-decoration: none; color: inherit;">
+        Digital Newsstand
+    </a>
+</h1>
         <nav>
             <a href="index.php?page=Home">Home</a>
             <a href="index.php?page=article">Articles</a>
             <?php if ($isLoggedIn): ?>
+
                 <div class="profile-dropdown">
                     <button class="profile-toggle" id="profileToggle">
                         👤 <?php echo htmlspecialchars($username); ?>
@@ -46,9 +59,16 @@ if ($isLoggedIn) {
                             </div>
                         </div>
                         <a href="index.php?page=plans">Manage Subscription</a>
+                        <a href="?page=Account">Account Settings</a>
                         <a href="?page=logout">Logout</a>
                     </div>
                 </div>
+
+                           
+
+                     
+
+
             <?php else: ?>
                 <a href="index.php?page=Login">Login</a>
             <?php endif; ?>
@@ -262,4 +282,12 @@ if ($isLoggedIn) {
     })();
     </script>
 
+     
     <main>
+
+    
+                 <script src="../../Assets/JS/Main.js">
+                 </script>
+                
+</body>
+</html>

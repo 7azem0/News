@@ -1,5 +1,5 @@
+<?php include(__DIR__ . '../../Layout/Header.php'); ?>
 <?php
-session_start();
 require_once __DIR__ . '/../../Models/User.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -83,16 +83,19 @@ $username = $_SESSION['username'] ?? '';
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
 
+        /* NEW — visible blue outline on click */
+        .subscription-plan:active {
+            transform: translateY(-2px) scale(0.98);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.25);
+        }  
+
         .subscription-plan.selected {
-            animation: pulse 2s infinite;
-            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(1, 44, 236, 0.76);
+            animation: pulse 0.6s ease-out;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
-        }
+
+
 
         .subscription-plan h3 {
             font-family: 'Playfair Display', serif;
@@ -194,65 +197,7 @@ $username = $_SESSION['username'] ?? '';
     </style>
 </head>
 <body>
-    <header>
-        <h1>Digital Newsstand</h1>
-        <nav>
-            <a href="index.php?page=Home">Home</a>
-            <a href="index.php?page=article">Articles</a>
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <div class="profile-dropdown">
-                    <button class="profile-toggle" id="profileToggle">
-                        👤 <?php echo htmlspecialchars($username); ?>
-                    </button>
-                    <div class="profile-menu" id="profileMenu">
-                        <div class="profile-info">
-                            <strong><?php echo htmlspecialchars($username); ?></strong>
-                            <div class="subscription-section">
-                                <?php if ($subscription): ?>
-                                    <div class="current-subscription">
-                                        <span class="subscription-active">Subscription: <?php echo htmlspecialchars($subscription['plan'] ?? 'Active'); ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="no-subscription">No active subscription</span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <a href="?page=logout">Logout</a>
-                    </div>
-                </div>
-            <?php else: ?>
-                <a href="index.php?page=Login">Login</a>
-            <?php endif; ?>
-            <div style="position: relative; display: inline-block;">
-                <a
-                    href="#"
-                    class="search-toggle"
-                    aria-label="Toggle article search"
-                >
-                    🔍
-                </a>
-                <div
-                    class="search-popover"
-                    id="searchPopover"
-                    style="display:none;"
-                >
-                    <form
-                        method="GET"
-                        action="index.php"
-                        class="search-popover-form"
-                    >
-                        <input type="hidden" name="page" value="search">
-                        <input
-                            type="text"
-                            name="q"
-                            placeholder="Search articles..."
-                            autocomplete="off"
-                        >
-                    </form>
-                </div>
-            </div>
-        </nav>
-    </header>
+   
 
     <main>
         <div class="plans-container">
@@ -373,27 +318,6 @@ $username = $_SESSION['username'] ?? '';
                 });
             }
 
-            // Profile dropdown toggle functionality
-            function initProfileToggle() {
-                var profileToggle = document.getElementById('profileToggle');
-                var profileMenu = document.getElementById('profileMenu');
-
-                if (profileToggle && profileMenu) {
-                    profileToggle.addEventListener('click', function (event) {
-                        event.preventDefault();
-                        event.stopPropagation();
-
-                        var isVisible = profileMenu.style.display === 'block' ||
-                                       window.getComputedStyle(profileMenu).display === 'block';
-
-                        if (isVisible) {
-                            profileMenu.style.display = 'none';
-                        } else {
-                            profileMenu.style.display = 'block';
-                        }
-                    });
-                }
-            }
 
             // Handle form submission
             function initSubscriptionForm() {
@@ -414,12 +338,10 @@ $username = $_SESSION['username'] ?? '';
                         })
                         .then(response => response.json())
                         .then(data => {
-                            if (data.success) {
-                                alert(data.message);
-                                window.location.reload();
-                            } else {
+                            if (!data.success) {
                                 alert('Error: ' + data.error);
                             }
+                            window.location.reload(); // Always reload on success
                         })
                         .catch(error => {
                             alert('Error processing subscription. Please try again.');
@@ -478,13 +400,13 @@ $username = $_SESSION['username'] ?? '';
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', function() {
                     initSearchToggle();
-                    initProfileToggle();
+                // initProfileToggle();
                     initSubscriptionForm();
                     initPlanSelection();
                 });
             } else {
                 initSearchToggle();
-                initProfileToggle();
+                //initProfileToggle();
                 initSubscriptionForm();
                 initPlanSelection();
             }

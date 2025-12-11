@@ -39,6 +39,11 @@ class Router {
                 (new UserController())->forgotPassword();
                 break;
 
+            case "Account":
+                include "Controllers/User_C.php";
+                (new UserController())->account();
+                break;
+
             case "logout":
                 include "Controllers/User_C.php";
                 (new UserController())->logout();
