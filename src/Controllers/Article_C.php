@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once "Models/Article.php";
 require_once "Services/Translation_S.php";
 require_once "Models/User.php";

@@ -40,18 +40,33 @@ if ($isLoggedIn) {
             <a href="index.php?page=Home">Home</a>
             <a href="index.php?page=article">Articles</a>
             <?php if ($isLoggedIn): ?>
-                            <div class="user-dropdown">
-                    <button class="user-btn" id="userMenuBtn">
-                        👤 <?php echo htmlspecialchars($username); ?>
-                        <span class="arrow">▼</span>
-                    </button>
 
-                    <div class="user-menu" id="userMenu">
-                        <a href="?page=Subscription" class="user-item">Manage Subscription</a>
-                        <a href="?page=Account" class="user-item">Account Settings</a>
-                        <a href="?page=logout" class="user-item logout">Logout</a>
+                <div class="profile-dropdown">
+                    <button class="profile-toggle" id="profileToggle">
+                        👤 <?php echo htmlspecialchars($username); ?>
+                    </button>
+                    <div class="profile-menu" id="profileMenu">
+                        <div class="profile-info">
+                            <strong><?php echo htmlspecialchars($username); ?></strong>
+                            <div class="subscription-section">
+                                <?php if ($subscription): ?>
+                                    <div class="current-subscription">
+                                        <span class="subscription-active">Subscription: <?php echo htmlspecialchars($subscription['plan'] ?? 'Active'); ?></span>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="no-subscription">No active subscription</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <a href="index.php?page=plans">Manage Subscription</a>
+                        <a href="?page=Account">Account Settings</a>
+                        <a href="?page=logout">Logout</a>
                     </div>
                 </div>
+
+                           
+
+                     
 
 
             <?php else: ?>
@@ -135,8 +150,8 @@ if ($isLoggedIn) {
 
         // Profile dropdown toggle functionality
         function initProfileToggle() {
-            var profileToggle = document.getElementById('userMenuBtn');
-            var profileMenu = document.getElementById('userMenu');
+            var profileToggle = document.getElementById('profileToggle');
+            var profileMenu = document.getElementById('profileMenu');
 
             if (profileToggle && profileMenu) {
                 profileToggle.addEventListener('click', function (event) {
@@ -235,19 +250,11 @@ if ($isLoggedIn) {
         // Close dropdowns when clicking outside
         document.addEventListener('click', function(event) {
             // Close profile menu
-            var profileMenu = document.getElementById('userMenu');
-            var profileToggle = document.getElementById('userMenuBtn');
+            var profileMenu = document.getElementById('profileMenu');
+            var profileToggle = document.getElementById('profileToggle');
             if (profileMenu && profileMenu.style.display === 'block') {
                 if (!profileMenu.contains(event.target) && !profileToggle.contains(event.target)) {
                     profileMenu.style.display = 'none';
-                }
-            }
-
-            // Close subscription options
-            var subscriptionOptions = document.getElementById('subscriptionOptions');
-            if (subscriptionOptions && subscriptionOptions.style.display === 'block') {
-                if (!subscriptionOptions.contains(event.target)) {
-                    subscriptionOptions.style.display = 'none';
                 }
             }
 
@@ -266,13 +273,11 @@ if ($isLoggedIn) {
             document.addEventListener('DOMContentLoaded', function() {
                 initSearchToggle();
                 initProfileToggle();
-                initSubscriptionToggle();
             });
         } else {
             // DOM is already ready
             initSearchToggle();
             initProfileToggle();
-            initSubscriptionToggle();
         }
     })();
     </script>
