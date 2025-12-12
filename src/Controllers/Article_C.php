@@ -1,12 +1,26 @@
 <?php
 session_start();
-require_once "Models/Article.php";
-require_once "Services/Translation_S.php";
-require_once "Models/User.php";
+require_once __DIR__ . '/../Models/Article.php';
+require_once __DIR__ . '/../Models/News.php';
+require_once __DIR__ . '/../Services/Translation_S.php';
+require_once __DIR__ . '/../Models/User.php';
 
 class ArticleController {
 
+    private $articleModel;
+    private $newsModel;
+    private $translator;
+    private $userModel;
+
+    public function __construct() {
+        $this->articleModel = new Article();
+        $this->newsModel = new News(); 
+        $this->translator = new TranslationService();
+        $this->userModel = new User();
+    }
+
     public function index() {
+
         $articleModel = new Article();
 
         // Articles listing
@@ -28,13 +42,9 @@ class ArticleController {
 
         $translator = new TranslationService();
 
-        // Get user subscription to filter available languages
-        $userModel = new User();
-        $subscription = null;
-        if (isset($_SESSION['user_id'])) {
-            $subscription = $userModel->getSubscription($_SESSION['user_id']);
-        }
-        $plan = $subscription ? $subscription['plan'] : null;
+        $subscription = isset($_SESSION['user_id']) ? $this->userModel->getSubscription($_SESSION['user_id']) : null;
+        $plan = $subscription['plan'] ?? null;
+        
         $availableLangs = $translator->getAvailableLangsForPlan($plan);
 
         // Always include English as the default option
@@ -59,6 +69,11 @@ class ArticleController {
             }
         }
 
-        include "Views/Articles/Signle.php";
+        include __DIR__ . '/../Views/Articles/Single.php';
+    }
+
+    public function news($country = 'us', $category = 'technology') {
+        $articles = $this->newsModel->fetch($country, $category);
+        include __DIR__ . '/../Views/Articles/news.php';
     }
 }

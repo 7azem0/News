@@ -1,4 +1,4 @@
-<?php include "Views/Layout/Header.php"; ?>
+<?php include __DIR__ . '/../Layout/Header.php'; ?>
 
 <section class="article-view">
     <header class="article-header">
@@ -31,4 +31,4 @@
     <p><a href="?page=article">&larr; Back to list</a></p>
 </section>
 
-<?php include "Views/Layout/Footer.php"; ?>
+<?php include __DIR__ . '/../Layout/Footer.php'; ?>
