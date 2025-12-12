@@ -13,8 +13,21 @@ class Router {
 
             // Article routes
             case "article":
-                include "Controllers/Article_C.php";
-                (new ArticleController())->index();
+                require_once __DIR__ . '/../Controllers/Article_C.php';
+                $controller = new ArticleController();
+
+                 if (isset($_GET['id'])) {
+                    $controller->index(); 
+                } else {
+                    $controller->index(); 
+                }
+                break;
+
+            // News API routes 
+            case "news":
+                require_once __DIR__ . '/../Controllers/Article_C.php';
+                $controller = new ArticleController();
+                $controller->news('us', 'technology');
                 break;
 
             // Search routes

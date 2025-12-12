@@ -1,7 +1,10 @@
 <?php
 require_once "Config/DataBase_Connection.php";
-require_once "Services/Translation_S.php";
-require_once "Models/User.php";
+
+require_once __DIR__ . '/../Models/Article.php';
+require_once __DIR__ . '/../Services/Translation_S.php';
+require_once __DIR__ . '/../Models/User.php';
+
 
 $db = new Database();
 $PDO = $db->connect();
