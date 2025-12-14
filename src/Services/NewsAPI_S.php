@@ -19,41 +19,99 @@ class NewsAPIService {
      * @return array<int, array<string, mixed>>
      */
     public function fetch(string $country = 'us', string $category = 'general', string $keyword = ''): array {
+    $params = array_filter([
+        'country'  => $country,
+        'category' => $category,
+        'q'        => $keyword,
+        'apiKey'   => $this->apiKey,
+        'pageSize' => 30
+    ]);
 
-        if (empty($this->apiKey)) {
-            error_log("NewsAPIService: API key is empty");
-            return [];
-        }
+    $url = $this->apiUrl . '?' . http_build_query($params);
 
-        $params = array_filter([
-            'country'  => $country,
-            'category' => $category,
-            'q'        => $keyword,
+   $ch = curl_init($url);
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT        => 10,
+    CURLOPT_HTTPHEADER     => [
+        "User-Agent: NewsApp/1.0",  // <--- Add this line
+    ],
+]);
+
+
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($response === false || !empty($err)) {
+        error_log("NewsAPI cURL error: $err");
+        return [];
+    }
+
+    $data = json_decode($response, true);
+
+    if (!is_array($data)) {
+        error_log("NewsAPI invalid JSON: " . $response);
+        return [];
+    }
+
+    if (($data['status'] ?? '') !== 'ok') {
+        error_log("NewsAPI returned error: " . json_encode($data));
+        return [];
+    }
+
+    return $data['articles'];
+}
+
+    /**
+     * Search news using the everything endpoint.
+     *
+     * @param string $query
+     * @return array<int, array<string, mixed>>
+     */
+    public function search(string $query): array {
+        $params = [
+            'q'        => $query,
             'apiKey'   => $this->apiKey,
-            'pageSize' => 30
-        ]);
+            'pageSize' => 20,
+            'sortBy'   => 'publishedAt'
+        ];
 
-        $url = $this->apiUrl . '?' . http_build_query($params);
+        $url = 'https://newsapi.org/v2/everything?' . http_build_query($params);
 
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => 10,
+            CURLOPT_HTTPHEADER     => [
+                "User-Agent: NewsApp/1.0",
+            ],
         ]);
 
         $response = curl_exec($ch);
         $err = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
         if ($response === false || !empty($err)) {
+            error_log("NewsAPI search cURL error: $err");
             return [];
         }
 
         $data = json_decode($response, true);
-        if (!is_array($data) || !isset($data['articles'])) {
+
+        if (!is_array($data)) {
+            error_log("NewsAPI search invalid JSON: " . $response);
             return [];
         }
 
-        return $data['articles'];
+        if (($data['status'] ?? '') !== 'ok') {
+            error_log("NewsAPI search returned error: " . json_encode($data));
+            return [];
+        }
+
+        return $data['articles'] ?? [];
     }
+
 }

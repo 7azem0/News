@@ -21,15 +21,18 @@ if ($isLoggedIn) {
 <head>
     <meta charset="UTF-8">
     <title>Digital Newsstand</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../Assets/CSS/Styles.css">
     <link rel="stylesheet" href="../../Assets/CSS/pages.css">
     <link rel="stylesheet" href="../../Assets/CSS/account.css">
+    <link rel="stylesheet" href="../../Assets/CSS/main.css">
 
 </head>
-<body>
+<body class="<?= htmlspecialchars($_GET['page'] ?? 'home', ENT_QUOTES, 'UTF-8') ?>">
+
     <header>
         <h1>
     <a href="index.php?page=Home" style="text-decoration: none; color: inherit;">
@@ -39,6 +42,7 @@ if ($isLoggedIn) {
         <nav>
             <a href="index.php?page=Home">Home</a>
             <a href="index.php?page=article">Articles</a>
+            <a href="index.php?page=news">News</a>
             <?php if ($isLoggedIn): ?>
 
                 <div class="profile-dropdown">
@@ -286,8 +290,6 @@ if ($isLoggedIn) {
     <main>
 
     
-                 <script src="../../Assets/JS/Main.js">
-                 </script>
                 
 </body>
 </html>

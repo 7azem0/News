@@ -1,5 +1,9 @@
 <?php
-require_once "Config/DataBase_Connection.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . "/../config/DataBase_Connection.php";
 
 require_once __DIR__ . '/../Models/Article.php';
 require_once __DIR__ . '/../Services/Translation_S.php';

@@ -1,5 +1,6 @@
 <?php
-require_once "config/DataBase_Connection.php";
+require_once __DIR__ . "/../config/DataBase_Connection.php";
+
 
 class Article {
 
