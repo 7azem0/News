@@ -1,14 +1,112 @@
-/* *{
+/* ==========================
+   Global Reset
+=========================== */
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-:root{
-
-}
 a {
     text-decoration: none;
     color: inherit;
-} */
+}
+
+/* ==========================
+   Root Variables - Colors
+=========================== */
+:root {
+    /* Primary / Accent Colors */
+    --color-primary: #cb997e;
+    --color-secondary: #ddbea9;
+    --color-tertiary: #ffe8d6;
+    --color-quaternary: #b7b7a4;
+    --color-quinary: #a5a58d;
+    --color-dark: #6b705c;
+    --color-light: #edede9;
+
+    /* Text Colors */
+    --text-primary: #6b705c;
+    --text-secondary: #a5a58d;
+    --text-muted: #f0efeb;
+    --text-inverse: #ffffff;
+
+    /* Backgrounds */
+    --bg-primary: #edede9;
+    --bg-secondary: #f5ebe0;
+    --bg-tertiary: #fff1e6;
+    --card-bg-color: #fff1e6;
+    --header-bg-color: #d6ccc2;
+    --footer-bg-color: #b7b7a4;
+
+    /* Borders / Dividers */
+    --border-color: #d5bdaf;
+    --border-light: #b7b7a4;
+    --border-soft: #d6ccc2;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+    /* Alerts / Notifications */
+    --alert-success-bg: #e8f5e9;
+    --alert-success-text: #2e7d32;
+    --alert-error-bg: #ffe8d6;
+    --alert-error-text: #c62828;
+    --alert-warning-bg: #fff1e6;
+    --alert-warning-text: #856404;
+
+    /* Links */
+    --link-color: #cb997e;
+    --link-hover: #ddbea9;
+
+    /* Gradients */
+    --gradient-header: linear-gradient(90deg, #cb997e, #ddbea9);
+    --gradient-card: linear-gradient(180deg, #ffe8d6, #f5ebe0);
+}
+
+/* ==========================
+   Root Variables - Fonts
+=========================== */
+:root {
+    --font-primary: 'Merriweather', Georgia, serif;      /* للعناوين والمقالات */
+    --font-secondary: 'Verdana', Geneva, Tahoma, sans-serif; /* للنصوص العامة */
+
+    /* Font Sizes */
+    --fs-small: 0.9rem;
+    --fs-normal: 1rem;
+    --fs-medium: 1.2rem;
+    --fs-large: 1.5rem;
+    --fs-xlarge: 2rem;
+}
+
+/* ==========================
+   Root Variables - Spacing
+=========================== */
+:root {
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+}
+
+/* ==========================
+   Root Variables - Buttons
+=========================== */
+:root {
+    --btn-primary-bg: #cb997e;
+    --btn-primary-hover: #ddbea9;
+    --btn-primary-text: #ffffff;
+    --btn-secondary-bg: #f5ebe0;
+    --btn-secondary-hover: #eddcd2;
+    --btn-secondary-text: #6b705c;
+}
+
+/* ==========================
+   Root Variables - Transitions
+=========================== */
+:root {
+    --transition-fast: 0.2s ease-in-out;
+    --transition-medium: 0.4s ease-in-out;
+    --transition-slow: 0.6s ease-in-out;
+}

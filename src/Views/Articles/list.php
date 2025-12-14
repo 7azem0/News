@@ -1,21 +1,31 @@
-<?php include "Views/Layout/Header.php"; ?>
+<?php
+define('LAYOUT_PATH', __DIR__ . '/../Layout/');
+include LAYOUT_PATH . "Header.php";
+?>
 
 <section class="articles-list">
     <h2>Latest Articles</h2>
 
-<?php foreach ($articles as $a): ?>
-    <div class="article-card">
-        <?php if (!empty($a['thumbnail'])): ?>
-            <img
-                src="<?= htmlspecialchars($a['thumbnail'], ENT_QUOTES, 'UTF-8') ?>"
-                width="120"
-                alt="Thumbnail for <?= htmlspecialchars($a['title'], ENT_QUOTES, 'UTF-8') ?>"
-            >
-        <?php endif; ?>
-        <h3><?= htmlspecialchars($a['title'], ENT_QUOTES, 'UTF-8') ?></h3>
-        <a href="?page=article&id=<?= (int)$a['id'] ?>">Read</a>
-    </div>
-<?php endforeach; ?>
+    <?php if (!empty($articles)): ?>
+        <?php foreach ($articles as $article): ?>
+            <div class="article-card">
+                <?php if (!empty($article['thumbnail'])): ?>
+                    <img
+                        src="<?= htmlspecialchars($article['thumbnail'], ENT_QUOTES, 'UTF-8') ?>"
+                        width="120"
+                        alt="<?= htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8') ?>"
+                    >
+                <?php else: ?>
+                    <img src="/path/to/placeholder.jpg" width="120" alt="No image available">
+                <?php endif; ?>
+
+                <h3><?= htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8') ?></h3>
+                <a href="?page=article&id=<?= (int)$article['id'] ?>">Read</a>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p>No articles available at the moment.</p>
+    <?php endif; ?>
 </section>
 
-<?php include "Views/Layout/Footer.php"; ?>
+<?php include LAYOUT_PATH . "Footer.php"; ?>

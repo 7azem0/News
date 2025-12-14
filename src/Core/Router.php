@@ -2,7 +2,10 @@
 // /Router.php
 
 class Router {
-    public static function route($page, $selectedLang = 'en') {
+    const CONTROLLERS_PATH = __DIR__ . '/../Controllers/';
+    const VIEWS_PATH = __DIR__ . '/../Views/';
+
+    public static function route(string $page, string $selectedLang = 'en'): void {
         switch ($page) {
             // Home page
             case "":
