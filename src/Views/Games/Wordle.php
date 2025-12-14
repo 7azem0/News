@@ -1,168 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Guess | News App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --correct: #6aaa64;
-            --present: #c9b458;
-            --absent: #787c7e;
-            --surface: #ffffff;
-            --border: #d3d6da;
-        }
+<?php include(__DIR__ . '/../Layout/Header.php'); ?>
 
-        body {
-            font-family: 'Inter', sans-serif;
-            text-align: center;
-            background-color: #f8fafc;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-        }
+<div class="container" style="max-width: 600px; margin: 2rem auto; text-align: center;">
+    <h1 class="serif-headline" style="font-size: 2.5rem; margin-bottom: 2rem;">Word Guess</h1>
 
-        header {
-            border-bottom: 1px solid #e2e8f0;
-            padding: 1rem;
-            width: 100%;
-            margin-bottom: 1rem;
-            background: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    <div id="game-board" class="wordle-board"></div>
+    <div id="keyboard" class="keyboard"></div>
 
-        h1 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
-
-        #game-board {
-            display: grid;
-            grid-template-rows: repeat(6, 1fr);
-            grid-gap: 5px;
-            padding: 10px;
-            box-sizing: border-box;
-            width: 350px;
-            height: 420px;
-            margin-bottom: 20px;
-        }
-
-        .row {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-gap: 5px;
-        }
-
-        .tile {
-            width: 100%;
-            height: 100%;
-            border: 2px solid var(--border);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            background: white;
-            user-select: none;
-        }
-
-        .tile[data-state="correct"] { background-color: var(--correct); color: white; border-color: var(--correct); }
-        .tile[data-state="present"] { background-color: var(--present); color: white; border-color: var(--present); }
-        .tile[data-state="absent"]  { background-color: var(--absent);  color: white; border-color: var(--absent); }
-
-        #keyboard {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            max-width: 500px;
-            padding: 0 10px;
-        }
-
-        .key-row {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .key {
-            padding: 15px 0;
-            flex: 1;
-            border-radius: 4px;
-            background-color: #d3d6da;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            user-select: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .key[data-state="correct"] { background-color: var(--correct); color: white; }
-        .key[data-state="present"] { background-color: var(--present); color: white; }
-        .key[data-state="absent"]  { background-color: var(--absent);  color: white; }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            z-index: 100;
-            text-align: center;
-            min-width: 300px;
-        }
-        
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 50;
-        }
-
-        button.action-btn {
-            background: var(--correct);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <a href="index.php?page=games" style="text-decoration:none; color:inherit;">✕</a>
-        <h1>Word Guess</h1>
-        <div style="width: 20px;"></div>
-    </header>
-
-    <div id="game-board"></div>
-    <div id="keyboard"></div>
-
-    <div class="overlay" id="overlay"></div>
-    <div class="modal" id="result-modal">
-        <h2 id="modal-title"></h2>
-        <p id="modal-msg"></p>
-        <button class="action-btn" onclick="shareResult()">Share Result 📋</button>
-        <button class="action-btn" onclick="resetGame()" style="background-color: #2563eb; margin-left: 10px;">Play Again 🔄</button>
+    <div class="overlay" id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:50;"></div>
+    <div class="modal" id="result-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:2rem; border-radius:8px; z-index:100; text-align:center; border: 1px solid #ccc; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h2 id="modal-title" class="serif-headline" style="margin-top:0;"></h2>
+        <p id="modal-msg" class="sans-text" style="font-family: var(--font-sans); margin-bottom: 20px;"></p>
+        <button class="btn-primary" onclick="shareResult()" style="background: black; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer;">Share Result 📋</button>
+        <button class="btn-primary" onclick="resetGame()" style="background: white; color: black; border: 1px solid black; padding: 0.5rem 1rem; cursor: pointer; margin-left: 10px;">Play Again 🔄</button>
     </div>
+</div>
 
 <script>
     const SOLUTION = "WORLD"; // Hardcoded for demo/MVP
@@ -183,7 +34,7 @@
             guesses = Array(MAX_TRIES).fill(null).map(() => Array(WORD_LENGTH).fill(''));
             
             // Clear UI
-            document.querySelectorAll('.tile').forEach(t => {
+            document.querySelectorAll('.wordle-tile').forEach(t => {
                 t.textContent = '';
                 t.removeAttribute('data-state');
             });
@@ -206,10 +57,10 @@
     const board = document.getElementById('game-board');
     for(let r=0; r<MAX_TRIES; r++) {
         const row = document.createElement('div');
-        row.className = 'row';
+        row.className = 'wordle-row';
         for(let c=0; c<WORD_LENGTH; c++) {
             const tile = document.createElement('div');
-            tile.className = 'tile';
+            tile.className = 'wordle-tile';
             tile.id = `tile-${r}-${c}`;
             row.appendChild(tile);
         }
@@ -286,7 +137,7 @@
 
     function checkRow() {
         const guess = guesses[currentRow].join('');
-        const rowTiles = document.querySelectorAll(`#game-board .row`)[currentRow].children;
+        const rowTiles = document.querySelectorAll('#game-board .wordle-row')[currentRow].children;
         
         // Color logic
         let solutionChars = SOLUTION.split('');
@@ -358,7 +209,7 @@
         let result = `News App Wordle ${currentRow+1}/6\n\n`;
         // Build emoji grid
         for(let i=0; i<=currentRow; i++) {
-            const rowTiles = document.querySelectorAll(`#game-board .row`)[i].children;
+            const rowTiles = document.querySelectorAll('#game-board .wordle-row')[i].children;
             for(let tile of rowTiles) {
                 const state = tile.dataset.state;
                 if(state === 'correct') result += '🟩';
@@ -405,7 +256,7 @@
                 let solChars = SOLUTION.split('');
                 let rowGuess = guesses[r].join('');
                 let gChars = rowGuess.split('');
-                const rowTiles = document.querySelectorAll(`#game-board .row`)[r].children;
+                const rowTiles = document.querySelectorAll('#game-board .wordle-row')[r].children;
 
                 // Pass 1
                 gChars.forEach((c, i) => {
@@ -467,5 +318,5 @@
     }
 
 </script>
-</body>
-</html>
+
+<?php include(__DIR__ . '/../Layout/Footer.php'); ?>

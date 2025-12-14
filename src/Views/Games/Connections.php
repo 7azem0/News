@@ -1,192 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connections | News App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --surface: #ffffff;
-            --background: #f8fafc;
-            --text-main: #0f172a;
-            --selected: #5b5b5b;
-            --correct-1: #fbd400; /* Yellow */
-            --correct-2: #a0c35a; /* Green */
-            --correct-3: #b0c4ef; /* Blue */
-            --correct-4: #ba81c5; /* Purple */
-        }
+<?php include(__DIR__ . '/../Layout/Header.php'); ?>
 
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--background);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .header {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 1rem;
-        }
-
-        h1 { margin: 0; font-size: 1.8rem; }
-
-        .game-container {
-            width: 100%;
-            max-width: 600px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: #efefe6;
-            border-radius: 8px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-            user-select: none;
-            text-align: center;
-            padding: 5px;
-            font-size: 0.9rem;
-            transition: transform 0.1s, background-color 0.2s;
-        }
-
-        .card.selected {
-            background-color: var(--selected);
-            color: white;
-        }
-
-        .category-row {
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            text-align: center;
-            animation: fadeIn 0.5s;
-        }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .category-title { font-weight: 800; font-size: 1.1rem; text-transform: uppercase; }
-        .category-words { font-weight: 400; margin-top: 5px; }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 12px 24px;
-            border-radius: 24px;
-            border: 1px solid #000;
-            background: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        button:hover { background: #f0f0f0; }
-        
-        button.submit {
-            background: black;
-            color: white;
-            border: 1px solid black;
-        }
-
-        button.submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .mistakes {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 1.1rem;
-        }
-        .dot {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            background: #5b5b5b;
-            border-radius: 50%;
-            margin: 0 4px;
-        }
-
-        .hidden { display: none !important; }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        .modal {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-            max-width: 90%;
-            width: 300px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="header">
-        <a href="index.php?page=games" style="text-decoration:none; color:inherit; font-size: 1.5rem;">✕</a>
-        <h1>Connections</h1>
-        <div style="width: 24px;"></div>
-    </div>
-
-    <div class="game-container">
+<div class="container" style="max-width: 600px; margin: 2rem auto; text-align: center;">
+    <h1 class="serif-headline" style="font-size: 2.5rem; margin-bottom: 2rem;">Connections</h1>
+    
+    <div class="game-container" style="width: 100%;">
         
         <!-- Solved Categories Container -->
         <div id="solved-container"></div>
 
         <!-- Active Grid -->
-        <div id="grid" class="grid"></div>
+        <div id="grid" class="connections-grid"></div>
 
-        <div class="mistakes">
+        <div class="mistakes" style="margin-top: 20px; font-size: 1.1rem; font-family: var(--font-sans);">
             Mistakes remaining: <span id="mistakes-dots"></span>
         </div>
 
-        <div class="controls">
-            <button onclick="shuffleGrid()">Shuffle</button>
-            <button onclick="deselectAll()">Deselect All</button>
-            <button class="submit" id="submit-btn" onclick="submitGuess()" disabled>Submit</button>
+        <div class="controls" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;">
+            <button class="btn-primary" style="background: white; color: black; border: 1px solid black;" onclick="shuffleGrid()">Shuffle</button>
+            <button class="btn-primary" style="background: white; color: black; border: 1px solid black;" onclick="deselectAll()">Deselect All</button>
+            <button class="btn-primary" id="submit-btn" onclick="submitGuess()" disabled>Submit</button>
         </div>
     </div>
+</div>
 
-    <div class="modal-overlay" id="modal-overlay">
-        <div class="modal">
-            <h2 id="modal-title"></h2>
-            <p id="modal-msg"></p>
-            <button class="submit" onclick="resetGame()" style="margin-top:1rem;">Play Again</button>
-        </div>
+<div class="modal-overlay" id="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
+    <div class="modal" style="background: white; padding: 2rem; border-radius: 12px; text-align: center; max-width: 90%; width: 300px;">
+        <h2 id="modal-title" class="serif-headline"></h2>
+        <p id="modal-msg" class="sans-text"></p>
+        <button class="btn-primary" onclick="resetGame()" style="margin-top:1rem;">Play Again</button>
     </div>
+</div>
 
 <script>
     // Game Data (Hardcoded for MVP)
@@ -221,13 +64,17 @@
         
         items.forEach(item => {
             const el = document.createElement('div');
-            el.className = `card ${selected.includes(item) ? 'selected' : ''}`;
+            // Use conn-card class from games.css
+            el.className = `conn-card ${selected.includes(item) ? 'selected' : ''}`;
             el.textContent = item.word;
             el.onclick = () => toggleSelect(item);
             grid.appendChild(el);
         });
 
-        document.getElementById('submit-btn').disabled = selected.length !== 4;
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = selected.length !== 4;
+        submitBtn.style.opacity = selected.length !== 4 ? '0.5' : '1';
+        submitBtn.style.cursor = selected.length !== 4 ? 'not-allowed' : 'pointer';
     }
 
     function toggleSelect(item) {
@@ -266,13 +113,12 @@
             updateMistakes();
             
             // Check "One Away"
-            // Get group counts in selection
             const counts = {};
             selected.forEach(i => counts[i.groupId] = (counts[i.groupId] || 0) + 1);
             const isOneAway = Object.values(counts).some(c => c === 3);
             
             if(isOneAway) alert("One away!");
-            else alert("Incorrect!"); // Simple alert for MVP
+            else alert("Incorrect!"); 
             
             if (mistakes === 0) {
                 showModal("Game Over", "Better luck next time!");
@@ -294,9 +140,9 @@
         // Render solved row
         const container = document.getElementById('solved-container');
         const row = document.createElement('div');
-        row.className = 'category-row';
+        row.className = 'conn-row'; // Use conn-row from games.css
         row.style.background = group.color;
-        row.innerHTML = `<div class="category-title">${group.title}</div><div class="category-words">${group.words.join(', ')}</div>`;
+        row.innerHTML = `<div class="conn-title">${group.title}</div><div class="conn-words">${group.words.join(', ')}</div>`;
         container.appendChild(row);
 
         render();
@@ -311,7 +157,14 @@
         container.innerHTML = '';
         for(let i=0; i<mistakes; i++) {
             const dot = document.createElement('span');
-            dot.className = 'dot';
+            // Use inline style or games.css dot if available. games.css doesn't have .dot
+            // We can add simple style or use a char.
+            dot.style.display = 'inline-block';
+            dot.style.width = '12px';
+            dot.style.height = '12px';
+            dot.style.backgroundColor = '#5b5b5b';
+            dot.style.borderRadius = '50%';
+            dot.style.margin = '0 4px';
             container.appendChild(dot);
         }
     }
@@ -322,7 +175,6 @@
         document.getElementById('modal-overlay').style.display = 'flex';
     }
 
-    // --- Helpers ---
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -330,7 +182,6 @@
         }
     }
 
-    // --- persistence ---
     async function saveProgress() {
         const state = {
             solvedGroupIds: solvedGroupIds,
@@ -349,12 +200,10 @@
         const json = await res.json();
         
         if (json.success && json.data && json.data.state) {
-            const state = json.data.state; // JSON decoded by PHP already? Check Controller.
-            // Controller returns data['state'] as object because we did json_decode there.
+            const state = json.data.state;
             
             if (state.solvedGroupIds && state.solvedGroupIds.length > 0) {
                 state.solvedGroupIds.forEach(gid => {
-                    // Only process if not already processed (in case of double calls)
                     if(!solvedGroupIds.includes(gid)) {
                         const group = GROUPS.find(g => g.id == gid);
                         if(group) {
@@ -383,5 +232,5 @@
     init();
 
 </script>
-</body>
-</html>
+
+<?php include(__DIR__ . '/../Layout/Footer.php'); ?>

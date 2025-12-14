@@ -1,76 +1,85 @@
-<?php
-define('LAYOUT_PATH', __DIR__ . '/../Layout/');
-include LAYOUT_PATH . "Header.php";
-?>
+<?php include __DIR__ . '/../Layout/Header.php'; ?>
 
-<div class="article-view">
-    <article class="article-header">
-        <h2>Articles and News</h2>
-        <div class="article-lang-form">
-            <label for="lang-select">Translate to:</label>
-            <form method="GET" action="index.php" style="display: inline;">
-                <input type="hidden" name="page" value="article">
-                <select name="lang" id="lang-select" onchange="this.form.submit()">
-                    <?php foreach ($availableLangs as $code => $name): ?>
-                        <option value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedLang === $code ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </form>
-        </div>
-    </article>
+<div class="container" style="margin-top: 2rem;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 4px double var(--border-dark); padding-bottom: 1rem; margin-bottom: 2rem;">
+        <h1 class="serif-headline" style="font-size: 3rem; margin: 0;">Articles</h1>
+        
+        <!-- Language Select -->
+         <form method="GET" action="index.php" style="margin: 0;">
+            <input type="hidden" name="page" value="article">
+            <select name="lang" id="lang-select" onchange="this.form.submit()" style="padding: 5px; font-family: var(--font-sans); border: 1px solid var(--border-light);">
+                <?php foreach ($availableLangs as $code => $name): ?>
+                    <option value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedLang === $code ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="articles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+        <?php if (!empty($articles)): ?>
+            <?php foreach ($articles as $article): ?>
+                <article style="border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;">
+                    <?php if (!empty($article['thumbnail'])): ?>
+                        <a href="?page=article&id=<?= $article['id'] ?>">
+                            <img src="<?= htmlspecialchars($article['thumbnail']) ?>" alt="Thumbnail" style="width: 100%; height: 200px; object-fit: cover; margin-bottom: 1rem; filter: contrast(0.9);">
+                        </a>
+                    <?php endif; ?>
+                    
+                    <a href="?page=article&id=<?= $article['id'] ?>" style="color: black; text-decoration: none;">
+                        <h3 class="serif-headline" style="font-size: 1.4rem; line-height: 1.2; margin-bottom: 0.5rem; hover:text-decoration:underline;">
+                            <?= htmlspecialchars($article['title']) ?>
+                        </h3>
+                    </a>
+
+                    <div style="font-family: var(--font-sans); font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; text-transform: uppercase;">
+                        <?= date('M j, Y', strtotime($article['publishedAt'] ?? 'now')) ?> 
+                        <?php if(isset($article['category_name'])): ?>
+                             • <span style="font-weight: bold;"><?= htmlspecialchars($article['category_name']) ?></span>
+                        <?php endif; ?>
+                    </div>
+
+                    <p style="font-family: var(--font-serif); color: #444; font-size: 1rem; line-height: 1.5;">
+                        <!-- Truncate description -->
+                        <?= htmlspecialchars(substr($article['description'] ?? '', 0, 120)) ?>...
+                    </p>
+                </article>
+            <?php endforeach; ?>
+        <?php else: ?>
+             <p>No articles available.</p>
+        <?php endif; ?>
+    </div>
+
+    <!-- Latest News Section (External) -->
+    <div class="divider"></div>
+    
+    <h2 class="serif-headline" style="font-size: 2rem; margin-bottom: 1.5rem;">Latest World News</h2>
+    
+    <div class="news-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+        <?php if (!empty($news)): ?>
+            <?php foreach ($news as $item): ?>
+                <div class="news-card" style="background: #f9f9f9; padding: 1rem; border: 1px solid var(--border-light);">
+                    <?php if (!empty($item['urlToImage']) || !empty($item['imageUrl'])): ?>
+                        <img src="<?= htmlspecialchars($item['urlToImage'] ?? $item['imageUrl']) ?>" alt="News" style="width: 100%; height: 150px; object-fit: cover; margin-bottom: 1rem;">
+                    <?php endif; ?>
+                    
+                    <h3 class="serif-headline" style="font-size: 1.1rem; margin-bottom: 0.5rem;">
+                        <a href="<?= htmlspecialchars($item['url'] ?? '#') ?>" target="_blank" style="color: black; text-decoration: none;"><?= htmlspecialchars($item['title']) ?></a>
+                    </h3>
+                    
+                    <p style="font-family: var(--font-sans); font-size: 0.9rem; color: #555;">
+                        <?= htmlspecialchars(substr($item['description'] ?? '', 0, 80)) ?>...
+                    </p>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>No world news available.</p>
+        <?php endif; ?>
+    </div>
+
 </div>
 
-<section class="articles-list">
-    <h2>Latest Articles</h2>
-
-    <?php if (!empty($articles)): ?>
-        <?php foreach ($articles as $article): ?>
-            <div class="article-card">
-                <?php if (!empty($article['thumbnail'])): ?>
-                    <img
-                        src="<?= htmlspecialchars($article['thumbnail'], ENT_QUOTES, 'UTF-8') ?>"
-                        width="120"
-                        alt="<?= htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8') ?>"
-                    >
-                <?php else: ?>
-                    <img src="/path/to/placeholder.jpg" width="120" alt="No image available">
-                <?php endif; ?>
-
-                <h3><?= htmlspecialchars($article['title'], ENT_QUOTES, 'UTF-8') ?></h3>
-                <a href="?page=article&id=<?= (int)$article['id'] ?>">Read</a>
-            </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <p>No articles available at the moment.</p>
-    <?php endif; ?>
-</section>
-
-<section class="news-list">
-    <h2>Latest News</h2>
-
-    <?php if (!empty($news)): ?>
-        <?php foreach ($news as $item): ?>
-            <div class="article-card">
-                <?php if (!empty($item['urlToImage']) || !empty($item['imageUrl'])): ?>
-                    <img
-                        src="<?= htmlspecialchars($item['urlToImage'] ?? $item['imageUrl'], ENT_QUOTES, 'UTF-8') ?>"
-                        width="120"
-                        alt="<?= htmlspecialchars($item['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                    >
-                <?php else: ?>
-                    <img src="/path/to/placeholder.jpg" width="120" alt="No image available">
-                <?php endif; ?>
-
-                <h3><a href="<?= htmlspecialchars($item['url'] ?? '#', ENT_QUOTES, 'UTF-8') ?>" target="_blank"><?= htmlspecialchars($item['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></a></h3>
-                <p><?= htmlspecialchars($item['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
-                <small>Published at: <?= htmlspecialchars($item['publishedAt'] ?? '', ENT_QUOTES, 'UTF-8') ?></small>
-            </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <p>No news available at the moment.</p>
-    <?php endif; ?>
-</section>
-
-<?php include LAYOUT_PATH . "Footer.php"; ?>
+<?php include __DIR__ . '/../Layout/Footer.php'; ?>

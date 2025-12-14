@@ -20,91 +20,73 @@ if ($isLoggedIn) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Newsstand</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles.css backup for legacy (news.php) -->
     <link rel="stylesheet" href="../../Assets/CSS/Styles.css">
-    <link rel="stylesheet" href="../../Assets/CSS/pages.css">
-    <link rel="stylesheet" href="../../Assets/CSS/account.css">
-    <link rel="stylesheet" href="../../Assets/CSS/main.css">
 
+    <!-- New Theme CSS (Overrides legacy) -->
+    <link rel="stylesheet" href="../../Assets/CSS/theme.css">
+    <link rel="stylesheet" href="../../Assets/CSS/games.css">
+    <link rel="stylesheet" href="../../Assets/CSS/account.css">
 </head>
 <body class="<?= htmlspecialchars($_GET['page'] ?? 'home', ENT_QUOTES, 'UTF-8') ?>">
 
-    <header>
-        <h1>
-    <a href="index.php?page=Home" style="text-decoration: none; color: inherit;">
-        Digital Newsstand
-    </a>
-</h1>
-        <nav>
-            <a href="index.php?page=Home">Home</a>
-            <a href="index.php?page=article">Articles</a>
-            <a href="index.php?page=news">News</a>
-            <?php if ($isLoggedIn): ?>
-
-                <div class="profile-dropdown">
-                    <button class="profile-toggle" id="profileToggle">
-                        👤 <?php echo htmlspecialchars($username); ?>
-                    </button>
-                    <div class="profile-menu" id="profileMenu">
-                        <div class="profile-info">
-                            <strong><?php echo htmlspecialchars($username); ?></strong>
-                            <div class="subscription-section">
-                                <?php if ($subscription): ?>
-                                    <div class="current-subscription">
-                                        <span class="subscription-active">Subscription: <?php echo htmlspecialchars($subscription['plan'] ?? 'Active'); ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="no-subscription">No active subscription</span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <a href="index.php?page=plans">Manage Subscription</a>
-                        <a href="?page=Account">Account Settings</a>
-                        <a href="?page=logout">Logout</a>
-                    </div>
-                </div>
-
-                           
-
-                     
-
-
-            <?php else: ?>
-                <a href="index.php?page=Login">Login</a>
-            <?php endif; ?>
-            <div style="position: relative; display: inline-block;">
-                <a
-                    href="#"
-                    class="search-toggle"
-                    aria-label="Toggle article search"
-                >
-                    🔍
-                </a>
-                <div
-                    class="search-popover"
-                    id="searchPopover"
-                    style="display:none;"
-                >
-                    <form
-                        method="GET"
-                        action="index.php"
-                        class="search-popover-form"
-                    >
-                        <input type="hidden" name="page" value="search">
-                        <input
-                            type="text"
-                            name="q"
-                            placeholder="Search articles..."
-                            autocomplete="off"
-                        >
-                    </form>
+    <header class="main-header">
+        <div class="container">
+            <!-- Branding -->
+            <div class="branding">
+                <h1>
+                    <a href="index.php?page=Home" style="color: black; text-decoration: none;">Digital Newsstand</a>
+                </h1>
+                <div style="text-align: center; font-family: var(--font-sans); font-size: 0.8rem; letter-spacing: 1px; margin-top: 5px;">
+                    <?php echo date('l, F j, Y'); ?>
                 </div>
             </div>
-        </nav>
+
+            <!-- Nav -->
+            <nav class="nav-links">
+                <a href="index.php?page=Home">Home</a>
+                <a href="index.php?page=article">Articles</a>
+                <a href="index.php?page=news">World News</a>
+                <a href="index.php?page=games">Games Arcade</a>
+                
+                <?php if ($isLoggedIn): ?>
+                    <div class="dropdown" style="position: relative; display: inline-block;">
+                        <a href="#" id="profileToggle">Account (<?= htmlspecialchars($username) ?>)</a>
+                        <div class="profile-menu" id="profileMenu">
+                             <div class="sub-label">
+                                SUBSCRIPTION: <span style="font-weight: 800;"><?= htmlspecialchars($subscription['plan'] ?? 'NONE') ?></span>
+                            </div>
+                            <div class="divider" style="margin: 0.5rem 0; border-color: #eee;"></div>
+                            <a href="index.php?page=plans" class="menu-link">Manage/Subscribe</a>
+                            <a href="?page=Account" class="menu-link">Settings</a>
+                            <a href="?page=logout" class="menu-link text-danger">Logout</a>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <a href="index.php?page=Login">Log In</a>
+                <?php endif; ?>
+
+                <!-- Search -->
+                <a href="#" class="search-toggle">Search</a>
+            </nav>
+            
+            <!-- Search Overlay (Hidden) -->
+            <div id="searchPopover" style="display:none; position: absolute; top: 100%; right: 0; background: white; padding: 10px; border: 1px solid #ccc; z-index: 999;">
+                 <form method="GET" action="index.php">
+                    <input type="hidden" name="page" value="search">
+                    <input type="text" name="q" placeholder="Search..." autocomplete="off" style="padding: 5px;">
+                    <button type="submit">Go</button>
+                </form>
+            </div>
+        </div>
     </header>
 
     <script>
@@ -288,8 +270,3 @@ if ($isLoggedIn) {
 
      
     <main>
-
-    
-                
-</body>
-</html>

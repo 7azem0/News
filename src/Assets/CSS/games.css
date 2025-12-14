@@ -1,0 +1,320 @@
+/* Games Arcade Shared Styles */
+
+/* Hub */
+.games-hub-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.games-hub-header h1 {
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-display);
+    color: var(--text-headline);
+    background: none;
+    -webkit-text-fill-color: initial;
+}
+
+.games-hub-header p {
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: var(--font-sans);
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+}
+
+.game-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    /* Sharper corners for NYT look */
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: none;
+}
+
+.game-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    border-color: var(--border-dark);
+}
+
+.card-image {
+    height: 200px;
+    background-color: var(--bg-paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-family: var(--font-display);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.card-content {
+    padding: 1.5rem;
+    text-align: left;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    font-family: var(--font-display);
+}
+
+.card-desc {
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0 0 1.5rem 0;
+    font-family: var(--font-sans);
+}
+
+.btn-play {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background-color: black;
+    color: white;
+    border-radius: 4px;
+    /* Less rounded */
+    font-weight: 600;
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+}
+
+/* Wordle */
+.wordle-board {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    grid-gap: 5px;
+    padding: 10px;
+    width: 350px;
+    height: 420px;
+    margin: 0 auto;
+}
+
+.wordle-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 5px;
+}
+
+.wordle-tile {
+    border: 2px solid #d3d6da;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-family: var(--font-sans);
+    background: #fff;
+}
+
+.wordle-tile[data-state="correct"] {
+    background-color: var(--game-correct);
+    color: white;
+    border-color: var(--game-correct);
+}
+
+.wordle-tile[data-state="present"] {
+    background-color: var(--game-present);
+    color: white;
+    border-color: var(--game-present);
+}
+
+.wordle-tile[data-state="absent"] {
+    background-color: var(--game-absent);
+    color: white;
+    border-color: var(--game-absent);
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.key-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.key {
+    padding: 15px 0;
+    flex: 1;
+    border-radius: 4px;
+    background-color: #d3d6da;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.key[data-state="correct"] {
+    background-color: var(--game-correct);
+    color: white;
+}
+
+.key[data-state="present"] {
+    background-color: var(--game-present);
+    color: white;
+}
+
+.key[data-state="absent"] {
+    background-color: var(--game-absent);
+    color: white;
+}
+
+/* Connections */
+.connections-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.conn-card {
+    background: #efefe6;
+    border-radius: 8px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 5px;
+    font-size: 0.9rem;
+}
+
+.conn-card.selected {
+    background-color: #5b5b5b;
+    color: white;
+}
+
+.conn-row {
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-family: var(--font-sans);
+}
+
+.conn-title {
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+/* Spelling Bee */
+.hive {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 2rem auto;
+}
+
+.hex {
+    width: 80px;
+    height: 92px;
+    background-color: #e6e6e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    position: absolute;
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.hex:active {
+    transform: scale(0.95);
+}
+
+.hex.center {
+    background-color: #f7da21;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Positions */
+.hex:nth-child(2) {
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.hex:nth-child(3) {
+    top: 29%;
+    left: 74%;
+}
+
+.hex:nth-child(4) {
+    bottom: 29%;
+    left: 74%;
+}
+
+.hex:nth-child(5) {
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.hex:nth-child(6) {
+    bottom: 29%;
+    right: 74%;
+}
+
+.hex:nth-child(7) {
+    top: 29%;
+    right: 74%;
+}
+
+.sb-input {
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: var(--font-sans);
+    text-align: center;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    min-height: 40px;
+}
+
+.sb-cursor {
+    border-left: 3px solid #f7da21;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}

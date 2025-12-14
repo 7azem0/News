@@ -4,192 +4,100 @@ require_once __DIR__ . '/../Models/Article.php';
 
 $articleModel = new Article();
 $latestArticles = [];
-
 try {
-    $latestArticles = $articleModel->getLatest(5);
-} catch (Exception $e) {
-    // fail quietly on homepage if DB is not ready
-}
+    $latestArticles = $articleModel->getLatest(6); 
+} catch (Exception $e) { }
+
+$mainStory = $latestArticles[0] ?? null;
+$sideStories = array_slice($latestArticles, 1, 3);
+$bottomStories = array_slice($latestArticles, 4, 2);
 ?>
-<section class="home-intro">
-    <h2>Welcome to the Digital Newsstand</h2>
-    <p>Browse the latest news and magazines.</p>
-</section>
 
-<?php if (!empty($latestArticles)): ?>
-<section class="home-latest">
-    <h3>Latest Articles</h3>
+<div class="container" style="margin-top: 2rem;">
+    
+    <!-- Date/Volume Bar (Optional) -->
+    <div class="double-divider"></div>
 
-    <div class="home-latest-carousel">
-        <button class="home-carousel-arrow prev" type="button" aria-label="Previous article">&#10094;</button>
+    <div class="newspaper-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+        
+        <!-- Main Column -->
+        <section class="main-column">
+            <?php if ($mainStory): ?>
+                <article class="lead-story" style="margin-bottom: 2rem;">
+                    <a href="?page=article&id=<?= $mainStory['id'] ?>" style="color: black;">
+                        <h2 class="serif-headline" style="font-size: 2.5rem; line-height: 1.1;"><?= htmlspecialchars($mainStory['title']) ?></h2>
+                    </a>
+                    
+                    <div style="font-family: var(--font-sans); color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                        By Digital Newsstand Staff | <?= date('M j, Y', strtotime($mainStory['publishedAt'] ?? 'now')) ?>
+                    </div>
 
-        <div class="home-latest-viewport">
-            <div class="home-latest-track">
-                <?php foreach ($latestArticles as $index => $a): ?>
-                    <article
-                        class="home-article-card"
-                        data-slide-index="<?= (int)$index ?>"
-                    >
-                        <?php if (!empty($a['thumbnail'])): ?>
-                            <img
-                                src="<?= htmlspecialchars($a['thumbnail'], ENT_QUOTES, 'UTF-8') ?>"
-                                alt="Thumbnail for <?= htmlspecialchars($a['title'], ENT_QUOTES, 'UTF-8') ?>"
-                            >
-                        <?php endif; ?>
-                        <div class="home-article-card-content">
-                            <h4><?= htmlspecialchars($a['title'], ENT_QUOTES, 'UTF-8') ?></h4>
-                            <a href="?page=article&id=<?= (int)$a['id'] ?>">Read</a>
+                    <?php if (!empty($mainStory['thumbnail'])): ?>
+                        <div style="margin-bottom: 1rem;">
+                            <img src="<?= htmlspecialchars($mainStory['thumbnail']) ?>" alt="Cover" style="width: 100%; height: auto; display: block;">
+                            <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">
+                                <?= htmlspecialchars($mainStory['title']) ?> (Image Source)
+                            </div>
                         </div>
-                    </article>
-                <?php endforeach; ?>
+                    <?php endif; ?>
+
+                    <p style="font-size: 1.1rem; text-align: justify;">
+                        <?= htmlspecialchars(substr($mainStory['description'] ?? '', 0, 200)) ?>...
+                        <a href="?page=article&id=<?= $mainStory['id'] ?>" style="font-weight: bold;">Read more</a>
+                    </p>
+                </article>
+            <?php else: ?>
+                <p>No featured stories today.</p>
+            <?php endif; ?>
+        </section>
+
+        <!-- Side Column (Latest/Opinion) -->
+        <aside class="side-column" style="border-left: 1px solid var(--border-light); padding-left: 1.5rem;">
+            <h3 class="sans-text" style="font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 1rem;">Latest Headlines</h3>
+            
+            <?php foreach ($sideStories as $story): ?>
+                <article style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;">
+                    <a href="?page=article&id=<?= $story['id'] ?>" style="color: black;">
+                        <h4 class="serif-headline" style="font-size: 1.2rem;"><?= htmlspecialchars($story['title']) ?></h4>
+                    </a>
+                    <p style="font-size: 0.9rem; color: #555; margin-bottom: 0;">
+                        <?= htmlspecialchars(substr($story['description'] ?? '', 0, 80)) ?>...
+                    </p>
+                </article>
+            <?php endforeach; ?>
+
+            <!-- Games Widget -->
+            <div class="games-widget" style="background: #f1f1f1; padding: 1.5rem; text-align: center; border: 1px solid #ddd; margin-top: 2rem;">
+                <h4 class="sans-text" style="font-weight: 700; font-size: 1.2rem; margin-top: 0;">Games Arcade</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 1rem;">Play Wordle, Connections, and Spelling Bee.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 1rem;">
+                    <!-- Mini icons -->
+                    <div style="background: white; border: 1px solid #ccc; padding: 5px; font-weight: bold;">W</div>
+                    <div style="background: white; border: 1px solid #ccc; padding: 5px; font-weight: bold;">C</div>
+                    <div style="background: white; border: 1px solid #ccc; padding: 5px; font-weight: bold;">S</div>
+                </div>
+
+                <a href="?page=games" class="btn-primary" style="font-size: 0.8rem;">Play Now</a>
             </div>
+        </aside>
+
+    </div>
+
+    <?php if (!empty($bottomStories)): ?>
+        <div class="divider"></div>
+        <div class="bottom-stories" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-bottom: 3rem;">
+            <?php foreach ($bottomStories as $story): ?>
+                <article>
+                    <a href="?page=article&id=<?= $story['id'] ?>" style="color: black;">
+                        <h3 class="serif-headline"><?= htmlspecialchars($story['title']) ?></h3>
+                    </a>
+                    <p><?= htmlspecialchars($story['description']) ?></p>
+                </article>
+            <?php endforeach; ?>
         </div>
+    <?php endif; ?>
 
-        <button class="home-carousel-arrow next" type="button" aria-label="Next article">&#10095;</button>
-    </div>
-
-    <div class="home-latest-dots" aria-hidden="true">
-        <?php foreach ($latestArticles as $index => $a): ?>
-            <button
-                class="home-latest-dot<?= $index === 0 ? ' is-active' : '' ?>"
-                type="button"
-                data-target-slide="<?= (int)$index ?>"
-            ></button>
-        <?php endforeach; ?>
-    </div>
-</section>
-</section>
-<?php endif; ?>
-
-<section class="home-games-cta" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 3rem 1rem; color: white; text-align: center; margin-top: 2rem;">
-    <div style="max-width: 800px; margin: 0 auto;">
-        <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Take a Break with Our Mini-Games</h2>
-        <p style="font-size: 1.25rem; color: #cbd5e1; margin-bottom: 2rem;">Challenge yourself with our daily puzzles. Play Wordle and more!</p>
-        <a href="?page=games" style="display: inline-block; padding: 1rem 2rem; background: #2563eb; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; transition: background 0.2s;">Visit Games Arcade →</a>
-    </div>
-</section>
-
-<script>
-// Lightweight carousel logic for the Latest Articles hero, similar to ecommerce ad sliders.
-(function () {
-    const track = document.querySelector('.home-latest-track');
-    if (!track) return;
-
-    let slides = Array.from(track.querySelectorAll('.home-article-card'));
-    if (slides.length <= 1) return; // no need for carousel
-
-    const prevBtn = document.querySelector('.home-carousel-arrow.prev');
-    const nextBtn = document.querySelector('.home-carousel-arrow.next');
-    const dots    = Array.from(document.querySelectorAll('.home-latest-dot'));
-
-    const slideCount = slides.length;
-
-    // Create clones for seamless infinite looping (like ecommerce hero sliders)
-    const firstClone = slides[0].cloneNode(true);
-    const lastClone  = slides[slides.length - 1].cloneNode(true);
-    track.appendChild(firstClone);
-    track.insertBefore(lastClone, slides[0]);
-
-    // Re‑query slides so list includes clones
-    slides = Array.from(track.querySelectorAll('.home-article-card'));
-
-    let currentIndex = 1; // start at first real slide (after the prepended lastClone)
-    let timerId = null;
-    const defaultTransition = window.getComputedStyle(track).transition;
-
-    function update() {
-        // Calculate offset accounting for card margins (24px on each side = 48px total)
-        // Each card is calc(100% - 48px) wide with 24px margin on each side
-        // So we move by 100% of viewport width per slide
-        const offset = -currentIndex * 100;
-        track.style.transform = 'translateX(' + offset + '%)';
-
-        const logicalIndex = (currentIndex - 1 + slideCount) % slideCount; // 0-based among real slides
-        dots.forEach((dot, i) => {
-            if (i === logicalIndex) {
-                dot.classList.add('is-active');
-            } else {
-                dot.classList.remove('is-active');
-            }
-        });
-    }
-
-    function go(delta) {
-        currentIndex += delta;
-        track.style.transition = defaultTransition;
-        update();
-    }
-
-    function goTo(logicalIndex) {
-        // map logical slide (0..slideCount-1) to physical index in track
-        currentIndex = logicalIndex + 1; // +1 because index 0 is lastClone
-        track.style.transition = defaultTransition;
-        update();
-    }
-
-    function startAuto() {
-        timerId = window.setInterval(function () {
-            go(1); // always move forward, looping using clones
-        }, 7000);
-    }
-
-    function resetAuto() {
-        if (timerId) {
-            window.clearInterval(timerId);
-        }
-        startAuto();
-    }
-
-    // When we hit a clone at either end, jump back to the real slide without visible reverse animation
-    track.addEventListener('transitionend', function () {
-        if (currentIndex === 0) {
-            // moved left onto lastClone; snap to last real slide
-            track.style.transition = 'none';
-            currentIndex = slideCount;
-            update();
-            void track.offsetWidth; // reflow
-            track.style.transition = defaultTransition;
-        } else if (currentIndex === slideCount + 1) {
-            // moved right onto firstClone; snap to first real slide
-            track.style.transition = 'none';
-            currentIndex = 1;
-            update();
-            void track.offsetWidth;
-            track.style.transition = defaultTransition;
-        }
-    });
-
-    function resetAuto() {
-        if (timerId) {
-            window.clearInterval(timerId);
-        }
-        startAuto();
-    }
-
-    prevBtn && prevBtn.addEventListener('click', function () {
-        go(-1);
-        resetAuto();
-    });
-
-    nextBtn && nextBtn.addEventListener('click', function () {
-        go(1);
-        resetAuto();
-    });
-
-    dots.forEach(function (dot, index) {
-        dot.addEventListener('click', function () {
-            goTo(index);
-            resetAuto();
-        });
-    });
-
-    // Initialize starting position at first real slide
-    track.style.transition = 'none';
-    update();
-    void track.offsetWidth;
-    track.style.transition = defaultTransition;
-    startAuto();
-})();
-</script>
+</div>
 
 <?php include(__DIR__ . '/layout/Footer.php'); ?>
