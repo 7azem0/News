@@ -58,7 +58,16 @@ try {
         <?php endforeach; ?>
     </div>
 </section>
+</section>
 <?php endif; ?>
+
+<section class="home-games-cta" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 3rem 1rem; color: white; text-align: center; margin-top: 2rem;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Take a Break with Our Mini-Games</h2>
+        <p style="font-size: 1.25rem; color: #cbd5e1; margin-bottom: 2rem;">Challenge yourself with our daily puzzles. Play Wordle and more!</p>
+        <a href="?page=games" style="display: inline-block; padding: 1rem 2rem; background: #2563eb; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; transition: background 0.2s;">Visit Games Arcade →</a>
+    </div>
+</section>
 
 <script>
 // Lightweight carousel logic for the Latest Articles hero, similar to ecommerce ad sliders.

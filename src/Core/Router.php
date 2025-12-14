@@ -64,6 +64,29 @@ class Router {
                 (new UserController())->logout();
                 break;
 
+            // Games
+            case "games":
+                require_once self::CONTROLLERS_PATH . "Games_C.php";
+                $controller = new GamesController();
+                
+                // Check if specific game action
+                if (isset($_GET['action'])) {
+                    if ($_GET['action'] === 'play' && isset($_GET['game'])) {
+                        $controller->play($_GET['game']);
+                    } elseif ($_GET['action'] === 'save') {
+                        $controller->saveProgress();
+                    } elseif ($_GET['action'] === 'reset') {
+                        $controller->resetProgress();
+                    } elseif ($_GET['action'] === 'load') {
+                        $controller->getProgress();
+                    } else {
+                        $controller->index();
+                    }
+                } else {
+                    $controller->index();
+                }
+                break;
+
             // Subscription
             case "subscribe":
                 require_once self::CONTROLLERS_PATH . "Subscription_C.php";
