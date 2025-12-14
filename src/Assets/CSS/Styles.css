@@ -1018,6 +1018,86 @@ footer {
     color: #0366d6;
 }
 
+/* Read dropdown styles */
+.read-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.read-toggle {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 15px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.read-toggle:hover {
+    background: #444d56;
+    color: #ffffff;
+}
+
+.read-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #d1d5da;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+    min-width: 120px;
+    z-index: 1000;
+    display: none !important;
+    animation: readMenuSlideDown 0.2s ease-out;
+    transform-origin: top left;
+}
+
+@keyframes readMenuSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1.0);
+    }
+}
+
+.read-info {
+    padding: 16px;
+    border-bottom: 1px solid #d1d5da;
+    background: #f6f8fa;
+    border-radius: 12px 12px 0 0;
+    color: #2a2828;
+}
+
+.read-info strong {
+    display: block;
+    color: #24292e;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.read-menu a {
+    display: block;
+    padding: 8px 12px;
+    color: #24292e;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.read-menu a:hover {
+    background: #f6f8fa;
+    color: #0366d6;
+}
+
 /* Responsive profile dropdown */
 @media (max-width: 600px) {
     .profile-menu {

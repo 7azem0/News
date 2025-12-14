@@ -14,8 +14,8 @@ services:
       - MYSQL_USER=Rain
       - MYSQL_PASSWORD=Sunny
       - MYSQL_DB=News
-      # Point TranslationService to our local LibreTranslate
       - LIBRE_TRANSLATE_URL=http://libretranslate:5000/translate
+      - NEWS_API_KEY=e519a661788549ae8cea66aa8c762724
 
   db:
     image: mysql:8.0

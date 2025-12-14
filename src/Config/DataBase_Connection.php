@@ -6,6 +6,13 @@ class Database {
     private $password = "Sunny";
     public $conn;
 
+    public function __construct() {
+        $this->host = getenv('DB_HOST') ?: 'db';
+        $this->db_name = getenv('DB_NAME') ?: 'News';
+        $this->username = getenv('DB_USER') ?: 'Rain';
+        $this->password = getenv('DB_PASS') ?: 'Sunny';
+    }
+
     public function connect() {
         $this->conn = null;
 

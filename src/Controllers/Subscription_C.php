@@ -1,6 +1,9 @@
 <?php
-require_once "Models/User.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
+require_once __DIR__ . '/../Models/User.php';
 class SubscriptionController {
 
     public function subscribe() {

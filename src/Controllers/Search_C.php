@@ -1,25 +1,26 @@
 <?php
-require_once "Models/Article.php";
+
+require_once __DIR__ . '/../Models/Article.php';
+require_once __DIR__ . '/../Services/NewsAPI_S.php';
 
 class SearchController {
 
-    public function index() {
-        $query = isset($_GET['q']) ? trim((string)$_GET['q']) : '';
+    public function index(): void {
+        $query = $_GET['q'] ?? '';
 
-        $articles = [];
-        $error = null;
-
-        if ($query !== '') {
-            try {
-                $articleModel = new Article();
-                $articles = $articleModel->search($query);
-            } catch (Exception $e) {
-                // Keep error generic for users; log separately if needed
-                $error = "Search failed. Please try again later.";
-            }
+        if (empty($query)) {
+            include __DIR__ . '/../Views/Articles/Search.php';
+            return;
         }
 
-        // $query and $articles are consumed by the view
-        include "Views/Articles/Search.php";
+        // Search articles in database
+        $articleModel = new Article();
+        $articles = $articleModel->search($query);
+
+        // Search news from API
+        $newsService = new NewsAPIService();
+        $news = $newsService->search($query);
+
+        include __DIR__ . '/../Views/Articles/Search.php';
     }
 }

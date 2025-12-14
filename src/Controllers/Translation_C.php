@@ -1,7 +1,14 @@
 <?php
-require_once "Config/DataBase_Connection.php";
-require_once "Services/Translation_S.php";
-require_once "Models/User.php";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . "/../config/DataBase_Connection.php";
+
+require_once __DIR__ . '/../Models/Article.php';
+require_once __DIR__ . '/../Services/Translation_S.php';
+require_once __DIR__ . '/../Models/User.php';
+
 
 $db = new Database();
 $PDO = $db->connect();

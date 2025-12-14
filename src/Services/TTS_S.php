@@ -1,5 +1,6 @@
 <?php
-require_once "config/db.php";
+require_once __DIR__ . "/../config/DataBase_Connection.php";
+
 
 class TTSService {
     public function generateAudio($text, $article_id) {

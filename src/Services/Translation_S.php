@@ -87,14 +87,23 @@ class TranslationService {
 
     public function getAvailableLangsForPlan(string $plan = null): array {
         if ($plan === 'Plus') {
-            return $this->allLangs; // All languages for Plus plan
+            return [
+                'ar' => 'Arabic',
+                'fr'=>'French',
+                'es'=>'Spanish',
+                'de'=>'German',
+                'zh'=>'Chinese (Mandarin)',
+                'ja'=>'Japanese',
+                'ko'=>'Korean',
+                'en' => 'English'
+            ];
         } elseif ($plan === 'Basic') {
             return [
                 'ar' => 'Arabic',
                 'en' => 'English'
             ];
         } elseif ($plan === 'Pro') {
-            return []; // No translation access for Pro plan
+            return $this->allLangs; // No translation access for Pro plan
         } else {
             // For other plans or no plan, return empty
             return [];
