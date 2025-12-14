@@ -6,8 +6,7 @@ class NewsAPIService {
     private string $apiUrl;
 
     public function __construct() {
-        // جيبي مفتاح API من environment variables
-        $this->apiKey = getenv('NEWS_API_KEY') ?: '';
+        $this->apiKey = getenv('NEWS_API_KEY') ?: 'e519a661788549ae8cea66aa8c762724';
         $this->apiUrl = 'https://newsapi.org/v2/top-headlines';
     }
 
@@ -22,7 +21,7 @@ class NewsAPIService {
     public function fetch(string $country = 'us', string $category = 'general', string $keyword = ''): array {
 
         if (empty($this->apiKey)) {
-            // لو مفيش API Key رجّعي array فاضي
+            error_log("NewsAPIService: API key is empty");
             return [];
         }
 
