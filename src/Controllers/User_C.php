@@ -62,9 +62,12 @@ class UserController {
 
             if (empty($errors)) {
                 $user = new User();
+                $loginResult = $user->login($old['email'], $password);
 
-                if ($user->login($old['email'], $password)) {
+                if ($loginResult === true) {
                     redirect('?page=Home');  // Redirect to home/dashboard page
+                } elseif ($loginResult === 'suspended') {
+                    $errors[] = "Your account has been suspended. Please contact support.";
                 } else {
                     $errors[] = "Invalid email or password.";
                 }
@@ -73,6 +76,70 @@ class UserController {
 
         include "views/User/Login.php";
     }
+
+    // ... (existing helper methods if needed)
+
+    // --- Admin Methods ---
+
+    private function ensureAdmin() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
+            redirect('?page=Home');
+            exit;
+        }
+    }
+
+    public function admin_index() {
+        $this->ensureAdmin();
+        $userModel = new User();
+        $users = $userModel->getAllUsers();
+        include __DIR__ . '/../Views/Admin/Users/index.php';
+    }
+
+    public function toggle_status() {
+        $this->ensureAdmin();
+        $id = $_POST['id'] ?? 0;
+        $status = $_POST['status'] ?? 'active';
+        
+        // Prevent banning yourself
+        if ($id == $_SESSION['user_id']) {
+            redirect('?page=admin_users'); // or show error
+            return;
+        }
+
+        $userModel = new User();
+        $newStatus = ($status === 'active') ? 'suspended' : 'active';
+        $userModel->updateStatus($id, $newStatus);
+        
+        redirect('?page=admin_users');
+    }
+
+    public function promote() {
+        $this->ensureAdmin();
+        $id = $_POST['id'] ?? 0;
+        
+        $userModel = new User();
+        $userModel->promoteToAdmin($id);
+        
+        redirect('?page=admin_users');
+    }
+
+    public function destroy() {
+        $this->ensureAdmin();
+        $id = $_POST['id'] ?? 0;
+        
+        // Prevent deleting yourself
+        if ($id == $_SESSION['user_id']) {
+            redirect('?page=admin_users');
+            return;
+        }
+
+        $userModel = new User();
+        $userModel->deleteUser($id);
+        
+        redirect('?page=admin_users');
+    }
+
 
 
 

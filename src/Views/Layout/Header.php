@@ -67,6 +67,9 @@ if ($isLoggedIn) {
                             <div class="divider" style="margin: 0.5rem 0; border-color: #eee;"></div>
                             <a href="index.php?page=plans" class="menu-link">Manage/Subscribe</a>
                             <a href="?page=Account" class="menu-link">Settings</a>
+                            <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
+                                <a href="?page=admin" class="menu-link" style="color: #d32f2f; font-weight: bold;">Administration Panel</a>
+                            <?php endif; ?>
                             <a href="?page=logout" class="menu-link text-danger">Logout</a>
                         </div>
                     </div>
@@ -75,17 +78,17 @@ if ($isLoggedIn) {
                 <?php endif; ?>
 
                 <!-- Search -->
-                <a href="#" class="search-toggle">Search</a>
-            </nav>
-            
-            <!-- Search Overlay (Hidden) -->
-            <div id="searchPopover" style="display:none; position: absolute; top: 100%; right: 0; background: white; padding: 10px; border: 1px solid #ccc; z-index: 999;">
-                 <form method="GET" action="index.php">
-                    <input type="hidden" name="page" value="search">
-                    <input type="text" name="q" placeholder="Search..." autocomplete="off" style="padding: 5px;">
-                    <button type="submit">Go</button>
-                </form>
-            </div>
+                <div class="search-wrapper" style="position: relative; display: inline-block;">
+                    <a href="#" class="search-toggle">Search</a>
+                    <!-- Search Overlay -->
+                    <div id="searchPopover" style="display:none; position: absolute; top: 100%; right: 0; background: white; padding: 10px; border: 1px solid #ccc; z-index: 999; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                         <form method="GET" action="index.php" style="display: flex; gap: 5px;">
+                            <input type="hidden" name="page" value="search">
+                            <input type="text" name="q" placeholder="Type and hit Enter..." autocomplete="off" style="padding: 8px; border: 1px solid #ddd; width: 220px; font-family: var(--font-sans); font-size: 0.9rem;">
+                            <button type="submit" style="display: none;">Go</button>
+                        </form>
+                    </div>
+                </div>
         </div>
     </header>
 

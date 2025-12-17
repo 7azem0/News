@@ -5,12 +5,12 @@ require_once __DIR__ . '/../Models/Article.php';
 $articleModel = new Article();
 $latestArticles = [];
 try {
-    $latestArticles = $articleModel->getLatest(6); 
+    $latestArticles = $articleModel->getLatest(4); 
 } catch (Exception $e) { }
 
 $mainStory = $latestArticles[0] ?? null;
 $sideStories = array_slice($latestArticles, 1, 3);
-$bottomStories = array_slice($latestArticles, 4, 2);
+
 ?>
 
 <div class="container" style="margin-top: 2rem;">
@@ -84,19 +84,7 @@ $bottomStories = array_slice($latestArticles, 4, 2);
 
     </div>
 
-    <?php if (!empty($bottomStories)): ?>
-        <div class="divider"></div>
-        <div class="bottom-stories" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-bottom: 3rem;">
-            <?php foreach ($bottomStories as $story): ?>
-                <article>
-                    <a href="?page=article&id=<?= $story['id'] ?>" style="color: black;">
-                        <h3 class="serif-headline"><?= htmlspecialchars($story['title']) ?></h3>
-                    </a>
-                    <p><?= htmlspecialchars($story['description']) ?></p>
-                </article>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+
 
 </div>
 

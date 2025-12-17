@@ -14,7 +14,7 @@
                 <span>•</span>
                 <span><?= date('F j, Y', strtotime($article['publishedAt'] ?? 'now')) ?></span>
                 
-                <?php if (isset($availableLangs, $selectedLang)): ?>
+                <?php if (empty($displayArticle['is_blocked']) && isset($availableLangs, $selectedLang)): ?>
                     <form method="GET" action="" style="margin:0; margin-left: 1rem;">
                         <input type="hidden" name="page" value="article">
                         <input type="hidden" name="id" value="<?= (int)$article['id'] ?>">
@@ -31,18 +31,26 @@
         </div>
 
         <!-- Image -->
-        <?php if (!empty($article['thumbnail'])): ?>
+        <?php if (empty($displayArticle['is_blocked']) && !empty($article['thumbnail'])): ?>
             <figure style="margin-bottom: 2rem;">
                 <img src="<?= htmlspecialchars($article['thumbnail']) ?>" alt="Article Image" style="width: 100%; height: auto; display: block;">
                 <figcaption style="font-family: var(--font-sans); font-size: 0.8rem; color: #888; margin-top: 0.5rem;">
                    <?= htmlspecialchars($article['title']) ?>
                 </figcaption>
             </figure>
+        <?php elseif (!empty($displayArticle['is_blocked'])): ?>
+            <div style="background: #f1f1f1; height: 300px; display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; border-radius: 8px; border: 1px dashed #ccc;">
+                <p style="color: #666;">Premium Article Content Blocked</p>
+            </div>
         <?php endif; ?>
 
         <!-- Content -->
         <div class="article-body" style="font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.8; color: #333;">
-            <p><?= nl2br(htmlspecialchars($displayArticle['content'] ?? $article['content'], ENT_QUOTES, 'UTF-8')) ?></p>
+            <?php if (!empty($displayArticle['is_blocked'])): ?>
+                <?= $displayArticle['content'] ?>
+            <?php else: ?>
+                <?= nl2br(htmlspecialchars($displayArticle['content'] ?? $article['content'], ENT_QUOTES, 'UTF-8')) ?>
+            <?php endif; ?>
         </div>
 
     </article>

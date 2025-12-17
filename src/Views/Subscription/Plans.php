@@ -1,6 +1,7 @@
 <?php include(__DIR__ . '../../Layout/Header.php'); ?>
 <?php
 require_once __DIR__ . '/../../Models/User.php';
+require_once __DIR__ . '/../../Models/Subscription.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: index.php?page=Login');
@@ -8,8 +9,14 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userModel = new User();
+$subModel = new Subscription();
+
 $subscription = $userModel->getSubscription($_SESSION['user_id']);
 $username = $_SESSION['username'] ?? '';
+$allPlans = $subModel->getAllPlans();
+
+// Check if subscription is valid
+$isActive = $subscription && strtotime($subscription['expires_at']) > time();
 ?>
 
 <!DOCTYPE html>
@@ -22,6 +29,7 @@ $username = $_SESSION['username'] ?? '';
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../Assets/CSS/Styles.css">
     <style>
+        /* ... existing styles ... */
         .plans-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -76,6 +84,7 @@ $username = $_SESSION['username'] ?? '';
             transition: all 0.3s ease;
             position: relative;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
         }
 
         .subscription-plan:hover {
@@ -92,10 +101,8 @@ $username = $_SESSION['username'] ?? '';
         .subscription-plan.selected {
             box-shadow: 0 0 0 4px rgba(1, 44, 236, 0.76);
             animation: pulse 0.6s ease-out;
+            border-color: #667eea;
         }
-
-
-
 
         .subscription-plan h3 {
             font-family: 'Playfair Display', serif;
@@ -126,6 +133,7 @@ $username = $_SESSION['username'] ?? '';
             padding: 0.5rem 0;
             color: #34495e;
             border-bottom: 1px solid #ecf0f1;
+            white-space: pre-wrap; /* Preserve newlines from DB */
         }
 
         .features li:last-child {
@@ -160,6 +168,14 @@ $username = $_SESSION['username'] ?? '';
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
+        }
+        
+        .cancel-btn {
+             background: #e74c3c;
+             margin-top: 1rem;
+        }
+        .cancel-btn:hover {
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
         }
 
         .subscribe-btn:hover {
@@ -208,71 +224,53 @@ $username = $_SESSION['username'] ?? '';
                 <p>Select the perfect subscription plan for your news reading needs</p>
             </div>
 
-            <?php if ($subscription): ?>
+            <?php if ($isActive): ?>
                 <div class="current-subscription-banner">
                     <h2>Current Plan: <?php echo htmlspecialchars($subscription['plan']); ?></h2>
-                    <p>Manage your subscription or upgrade to a higher plan</p>
+                    <p>Expires on: <?= date('F j, Y', strtotime($subscription['expires_at'])) ?></p>
                 </div>
             <?php endif; ?>
 
             <form class="subscription-form" id="subscriptionForm" method="POST" action="index.php?page=subscribe">
                 <div class="subscription-plans">
-                    <div class="subscription-plan">
-                        <input type="radio" id="basic" name="plan" value="Basic" <?php echo (!$subscription || $subscription['plan'] === 'Basic') ? 'checked' : ''; ?> style="display: none;">
-                        <label for="basic" style="cursor: pointer; display: block;">
-                            <h3>Basic</h3>
-                            <div class="price">$9.99<span>/month</span></div>
+                    <?php foreach ($allPlans as $plan): ?>
+                        <div class="subscription-plan" onclick="document.getElementById('plan_<?= $plan['id'] ?>').click()">
+                            <input type="radio" id="plan_<?= $plan['id'] ?>" name="plan_id" value="<?= $plan['id'] ?>" 
+                                <?= ($isActive && ($subscription['plan_id'] ?? 0) == $plan['id']) ? 'checked' : '' ?> 
+                                style="display: none;">
+                            
+                            <h3><?= htmlspecialchars($plan['name']) ?></h3>
+                            <div class="price">$<?= number_format($plan['price'], 2) ?><span>/<?= (int)$plan['duration_days'] === 30 ? 'month' : 'year' ?></span></div>
+                            
                             <ul class="features">
-                                <li>Access to basic articles</li>
-                                <li>Arabic/English translation</li>
-                                <li>Email newsletters</li>
-                                <li>Mobile app access</li>
+                                <?php 
+                                    $feats = explode("\n", $plan['features']);
+                                    foreach ($feats as $f) {
+                                        if (trim($f)) echo "<li>" . htmlspecialchars(trim($f)) . "</li>";
+                                    }
+                                ?>
                             </ul>
-                        </label>
-                    </div>
-
-                    <div class="subscription-plan">
-                        <input type="radio" id="plus" name="plan" value="Plus" <?php echo ($subscription && $subscription['plan'] === 'Plus') ? 'checked' : ''; ?> style="display: none;">
-                        <label for="plus" style="cursor: pointer; display: block;">
-                            <h3>Plus</h3>
-                            <div class="price">$19.99<span>/month</span></div>
-                            <ul class="features">
-                                <li>Access to premium articles</li>
-                                <li>Text-to-Speech (TTS) feature</li>
-                                <li>Offline reading</li>
-                                <li>Advanced search</li>
-                                <li>Everything in Basic</li>
-                            </ul>
-                        </label>
-                    </div>
-
-                    <div class="subscription-plan">
-                        <input type="radio" id="pro" name="plan" value="Pro" <?php echo ($subscription && $subscription['plan'] === 'Pro') ? 'checked' : ''; ?> style="display: none;">
-                        <label for="pro" style="cursor: pointer; display: block;">
-                            <h3>Pro</h3>
-                            <div class="price">$29.99<span>/month</span></div>
-                            <ul class="features">
-                                <li>All languages translation</li>
-                                <li>Priority customer support</li>
-                                <li>Unlimited article saves</li>
-                                <li>Custom news feeds</li>
-                                <li>Everything in Plus</li>
-                            </ul>
-                        </label>
-                    </div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
 
                 <div class="auto-renew-section">
                     <label for="autoRenew">
-                        <input type="checkbox" id="autoRenew" name="autoRenew" checked>
+                        <input type="checkbox" id="autoRenew" name="autoRenew" <?= ($isActive && ($subscription['auto_renew'] ?? 0)) ? 'checked' : 'checked' ?>>
                         Auto-renew subscription
                     </label>
                 </div>
 
                 <button type="submit" class="subscribe-btn" id="subscribeBtn">
-                    <?php echo $subscription ? 'Update Subscription' : 'Subscribe Now'; ?>
+                    <?php echo $isActive ? 'Switch Plan / Update Renewal' : 'Subscribe Now'; ?>
                 </button>
             </form>
+            
+            <?php if ($isActive): ?>
+                <form action="index.php?page=cancel_subscription" method="POST" style="margin-top: 20px;" onsubmit="return confirm('Are you sure you want to cancel? You will lose access immediately.');">
+                    <button type="submit" class="subscribe-btn cancel-btn">Cancel Subscription</button>
+                </form>
+            <?php endif; ?>
         </div>
     </main>
 
@@ -376,7 +374,7 @@ $username = $_SESSION['username'] ?? '';
 
             // Handle plan selection animation
             function initPlanSelection() {
-                var planInputs = document.querySelectorAll('input[name="plan"]');
+                var planInputs = document.querySelectorAll('input[name="plan_id"]');
                 planInputs.forEach(function(input) {
                     input.addEventListener('change', function() {
                         // Remove selected class from all plans
@@ -390,7 +388,7 @@ $username = $_SESSION['username'] ?? '';
                     });
                 });
                 // Set initial selected state
-                var checkedInput = document.querySelector('input[name="plan"]:checked');
+                var checkedInput = document.querySelector('input[name="plan_id"]:checked');
                 if (checkedInput) {
                     checkedInput.closest('.subscription-plan').classList.add('selected');
                 }

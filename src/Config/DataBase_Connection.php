@@ -1,4 +1,5 @@
 <?php
+if (!class_exists('Database')) {
 class Database {
     private $host = "db";         
     private $db_name = "News";    
@@ -29,4 +30,5 @@ class Database {
         }
         return $this->conn;
     }
+}
 }

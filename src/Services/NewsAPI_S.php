@@ -70,7 +70,17 @@ curl_setopt_array($ch, [
      * @param string $query
      * @return array<int, array<string, mixed>>
      */
-    public function search(string $query): array {
+    public function search(string $query, ?string $category = null): array {
+        // Build query with category if present
+        if (!empty($category)) {
+            $query = trim($query . ' ' . $category);
+        }
+
+        // If query is still empty (no keyword, no category), return empty
+        if (empty($query)) {
+            return [];
+        }
+
         $params = [
             'q'        => $query,
             'apiKey'   => $this->apiKey,

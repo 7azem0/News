@@ -64,6 +64,108 @@ class Router {
                 (new UserController())->logout();
                 break;
 
+            // Admin Panel
+            case "admin":
+                require_once self::CONTROLLERS_PATH . "Admin_C.php";
+                (new AdminController())->index();
+                break;
+
+            // Admin Articles
+            case "admin_articles":
+                require_once self::CONTROLLERS_PATH . "Article_C.php";
+                (new ArticleController())->admin_index();
+                break;
+            case "admin_article_create":
+                require_once self::CONTROLLERS_PATH . "Article_C.php";
+                (new ArticleController())->create();
+                break;
+            case "admin_article_store":
+                require_once self::CONTROLLERS_PATH . "Article_C.php";
+                (new ArticleController())->store();
+                break;
+            case "admin_article_edit":
+                require_once self::CONTROLLERS_PATH . "Article_C.php";
+                (new ArticleController())->edit();
+                break;
+            case "admin_article_update":
+                require_once self::CONTROLLERS_PATH . "Article_C.php";
+                (new ArticleController())->update();
+                break;
+            case "admin_article_delete":
+                require_once self::CONTROLLERS_PATH . "Article_C.php";
+                (new ArticleController())->destroy();
+                break;
+
+            // Admin Users
+            case "admin_users":
+                require_once self::CONTROLLERS_PATH . "User_C.php";
+                (new UserController())->admin_index();
+                break;
+            case "admin_user_toggle":
+                require_once self::CONTROLLERS_PATH . "User_C.php";
+                (new UserController())->toggle_status();
+                break;
+            case "admin_user_promote":
+                require_once self::CONTROLLERS_PATH . "User_C.php";
+                (new UserController())->promote();
+                break;
+            case "admin_user_delete":
+                require_once self::CONTROLLERS_PATH . "User_C.php";
+                (new UserController())->destroy();
+                break;
+
+            // Admin Plans
+            case "admin_plans":
+                require_once self::CONTROLLERS_PATH . "Subscription_C.php";
+                (new SubscriptionController())->admin_plans();
+                break;
+            case "admin_plan_create":
+                require_once self::CONTROLLERS_PATH . "Subscription_C.php";
+                (new SubscriptionController())->create_plan();
+                break;
+            case "admin_plan_store":
+                require_once self::CONTROLLERS_PATH . "Subscription_C.php";
+                (new SubscriptionController())->store_plan();
+                break;
+            case "admin_plan_edit":
+                require_once self::CONTROLLERS_PATH . "Subscription_C.php";
+                (new SubscriptionController())->edit_plan();
+                break;
+            case "admin_plan_update":
+                require_once self::CONTROLLERS_PATH . "Subscription_C.php";
+                (new SubscriptionController())->update_plan();
+                break;
+            case "admin_plan_delete":
+                require_once self::CONTROLLERS_PATH . "Subscription_C.php";
+                (new SubscriptionController())->destroy_plan();
+                break;
+            case "admin_subscription_assign":
+                require_once self::CONTROLLERS_PATH . "Subscription_C.php";
+                (new SubscriptionController())->assign();
+                break;
+            case "admin_subscription_store_assignment":
+                require_once self::CONTROLLERS_PATH . "Subscription_C.php";
+                (new SubscriptionController())->store_assignment();
+                break;
+
+            // Admin Comments
+            case "admin_comments":
+                require_once self::CONTROLLERS_PATH . "Comment_C.php";
+                (new CommentController())->admin_index();
+                break;
+            case "admin_comment_approve":
+                require_once self::CONTROLLERS_PATH . "Comment_C.php";
+                (new CommentController())->approve();
+                break;
+            case "admin_comment_reject":
+                require_once self::CONTROLLERS_PATH . "Comment_C.php";
+                (new CommentController())->reject();
+                break;
+            case "admin_comment_delete":
+                require_once self::CONTROLLERS_PATH . "Comment_C.php";
+                (new CommentController())->destroy();
+                break;
+
             // Games
             case "games":
                 require_once self::CONTROLLERS_PATH . "Games_C.php";
@@ -91,6 +193,10 @@ class Router {
             case "subscribe":
                 require_once self::CONTROLLERS_PATH . "Subscription_C.php";
                 (new SubscriptionController())->subscribe();
+                break;
+            case "cancel_subscription":
+                require_once self::CONTROLLERS_PATH . "Subscription_C.php";
+                (new SubscriptionController())->cancel();
                 break;
 
             case "plans":

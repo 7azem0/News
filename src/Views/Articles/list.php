@@ -30,7 +30,7 @@
                     <?php endif; ?>
                     
                     <a href="?page=article&id=<?= $article['id'] ?>" style="color: black; text-decoration: none;">
-                        <h3 class="serif-headline" style="font-size: 1.4rem; line-height: 1.2; margin-bottom: 0.5rem; hover:text-decoration:underline;">
+                        <h3 class="serif-headline" style="font-size: 1.4rem; line-height: 1.2; margin-bottom: 0.5rem; hover:text-decoration,underline">
                             <?= htmlspecialchars($article['title']) ?>
                         </h3>
                     </a>

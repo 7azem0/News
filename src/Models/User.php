@@ -47,11 +47,17 @@ class User {
         if (!$user) return false;
 
         if (password_verify($password, $user['password'])) {
+            // Check if user is suspended
+            if (isset($user['status']) && $user['status'] === 'suspended') {
+                return 'suspended';
+            }
+
             if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
             $_SESSION['user_id']  = $user['id'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['is_admin'] = $user['is_admin']; // Store admin status
             return true;
         }
 
@@ -97,5 +103,27 @@ class User {
         $stmt->bindParam(':password', $hashedPassword);
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
+    }
+
+    // --- Admin Methods ---
+
+    public function getAllUsers() {
+        $stmt = $this->conn->query("SELECT * FROM users ORDER BY created_at DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function updateStatus($id, $status) {
+        $stmt = $this->conn->prepare("UPDATE users SET status = ? WHERE id = ?");
+        return $stmt->execute([$status, $id]);
+    }
+
+    public function promoteToAdmin($id) {
+        $stmt = $this->conn->prepare("UPDATE users SET is_admin = 1 WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+
+    public function deleteUser($id) {
+        $stmt = $this->conn->prepare("DELETE FROM users WHERE id = ?");
+        return $stmt->execute([$id]);
     }
 }
