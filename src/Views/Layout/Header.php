@@ -56,6 +56,7 @@ if ($isLoggedIn) {
                 <a href="index.php?page=article">Articles</a>
                 <a href="index.php?page=news">World News</a>
                 <a href="index.php?page=games">Games Arcade</a>
+                <a href="index.php?page=for_you">FOR YOU</a>
                 
                 <?php if ($isLoggedIn): ?>
                     <div class="dropdown" style="position: relative; display: inline-block;">
@@ -65,10 +66,10 @@ if ($isLoggedIn) {
                                 SUBSCRIPTION: <span style="font-weight: 800;"><?= htmlspecialchars($subscription['plan'] ?? 'NONE') ?></span>
                             </div>
                             <div class="divider" style="margin: 0.5rem 0; border-color: #eee;"></div>
+                            <a href="?page=profile" class="menu-link">Profile</a>
                             <a href="index.php?page=plans" class="menu-link">Manage/Subscribe</a>
-                            <a href="?page=Account" class="menu-link">Settings</a>
                             <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
-                                <a href="?page=admin" class="menu-link" style="color: #d32f2f; font-weight: bold;">Administration Panel</a>
+                                <a href="?page=admin" class="menu-link">Administration Panel</a>
                             <?php endif; ?>
                             <a href="?page=logout" class="menu-link text-danger">Logout</a>
                         </div>

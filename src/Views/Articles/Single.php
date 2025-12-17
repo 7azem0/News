@@ -53,6 +53,180 @@
             <?php endif; ?>
         </div>
 
+        <!-- Like & Save Buttons -->
+        <?php if (empty($displayArticle['is_blocked'])): ?>
+            <div class="article-actions" style="margin-top: 2rem; padding: 1.5rem 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; display: flex; gap: 1rem; align-items: center;">
+                <!-- Like Button -->
+                <button 
+                    id="like-btn" 
+                    data-article-id="<?= (int)$article['id'] ?>"
+                    data-liked="<?= $isLiked ? 'true' : 'false' ?>"
+                    style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 50px; transition: all 0.3s ease; <?= $isLiked ? 'background: #ffe6e6;' : 'background: #f5f5f5;' ?>"
+                    onmouseover="this.style.transform='scale(1.05)'"
+                    onmouseout="this.style.transform='scale(1)'"
+                >
+                    <svg id="heart-icon" width="24" height="24" viewBox="0 0 24 24" style="transition: all 0.3s ease;">
+                        <path 
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
+                            fill="<?= $isLiked ? '#ff4757' : 'none' ?>" 
+                            stroke="<?= $isLiked ? '#ff4757' : '#666' ?>" 
+                            stroke-width="2"
+                        />
+                    </svg>
+                    <span id="like-count" style="font-weight: bold; color: <?= $isLiked ? '#ff4757' : '#666' ?>;">
+                        <?= $likeCount ?>
+                    </span>
+                </button>
+
+                <!-- Save Button -->
+                <button 
+                    id="save-btn" 
+                    data-article-id="<?= (int)$article['id'] ?>"
+                    data-saved="<?= $isSaved ? 'true' : 'false' ?>"
+                    style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 50px; transition: all 0.3s ease; <?= $isSaved ? 'background: #e6f7ff;' : 'background: #f5f5f5;' ?>"
+                    onmouseover="this.style.transform='scale(1.05)'"
+                    onmouseout="this.style.transform='scale(1)'"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                        <path 
+                            d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" 
+                            fill="<?= $isSaved ? '#1e90ff' : 'none' ?>" 
+                            stroke="<?= $isSaved ? '#1e90ff' : '#666' ?>" 
+                            stroke-width="2"
+                        />
+                    </svg>
+                    <span style="font-weight: bold; color: <?= $isSaved ? '#1e90ff' : '#666' ?>;">
+                        <?= $isSaved ? 'Saved' : 'Save' ?>
+                    </span>
+                </button>
+
+                <!-- PDF Download Button -->
+                <?php if ($canDownloadPdf): ?>
+                    <a href="?page=article_download_pdf&id=<?= (int)$article['id'] ?>" 
+                       target="_blank"
+                       style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 50px; transition: all 0.3s ease; background: #f5f5f5; text-decoration: none; color: #666;"
+                       onmouseover="this.style.transform='scale(1.05)'; this.style.background='#e8f5e9'"
+                       onmouseout="this.style.transform='scale(1)'; this.style.background='#f5f5f5'">
+                        <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="#4caf50"/>
+                        </svg>
+                        <span style="font-weight: bold; color: #4caf50;">Download PDF</span>
+                    </a>
+                <?php elseif (isset($_SESSION['user_id'])): ?>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 50px; background: #fff3cd; border: 1px solid #ffc107;">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#856404"/>
+                        </svg>
+                        <span style="font-size: 0.85rem; color: #856404;">
+                            <strong>Pro Feature:</strong> <a href="?page=plans" style="color: #856404; text-decoration: underline;">Upgrade to Pro</a> to download PDFs
+                        </span>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <style>
+                @keyframes heartBeat {
+                    0%, 100% { transform: scale(1); }
+                    25% { transform: scale(1.3); }
+                    50% { transform: scale(1.1); }
+                }
+                
+                .heart-animate {
+                    animation: heartBeat 0.5s ease;
+                }
+            </style>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const likeBtn = document.getElementById('like-btn');
+                    const saveBtn = document.getElementById('save-btn');
+                    const heartIcon = document.getElementById('heart-icon');
+                    const likeCount = document.getElementById('like-count');
+
+                    // Like button handler
+                    likeBtn.addEventListener('click', function() {
+                        const articleId = this.dataset.articleId;
+                        const isLiked = this.dataset.liked === 'true';
+
+                        fetch('index.php?page=article_like', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: 'article_id=' + articleId
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Animate heart
+                                heartIcon.classList.add('heart-animate');
+                                setTimeout(() => heartIcon.classList.remove('heart-animate'), 500);
+
+                                // Update UI
+                                const newLiked = data.action === 'liked';
+                                this.dataset.liked = newLiked;
+                                likeCount.textContent = data.count;
+                                
+                                const path = heartIcon.querySelector('path');
+                                if (newLiked) {
+                                    path.setAttribute('fill', '#ff4757');
+                                    path.setAttribute('stroke', '#ff4757');
+                                    likeCount.style.color = '#ff4757';
+                                    this.style.background = '#ffe6e6';
+                                } else {
+                                    path.setAttribute('fill', 'none');
+                                    path.setAttribute('stroke', '#666');
+                                    likeCount.style.color = '#666';
+                                    this.style.background = '#f5f5f5';
+                                }
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    });
+
+                    // Save button handler
+                    saveBtn.addEventListener('click', function() {
+                        const articleId = this.dataset.articleId;
+                        const isSaved = this.dataset.saved === 'true';
+
+                        fetch('index.php?page=article_save', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: 'article_id=' + articleId
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update UI
+                                const newSaved = data.action === 'saved';
+                                this.dataset.saved = newSaved;
+                                
+                                const path = this.querySelector('path');
+                                const span = this.querySelector('span');
+                                
+                                if (newSaved) {
+                                    path.setAttribute('fill', '#1e90ff');
+                                    path.setAttribute('stroke', '#1e90ff');
+                                    span.textContent = 'Saved';
+                                    span.style.color = '#1e90ff';
+                                    this.style.background = '#e6f7ff';
+                                } else {
+                                    path.setAttribute('fill', 'none');
+                                    path.setAttribute('stroke', '#666');
+                                    span.textContent = 'Save';
+                                    span.style.color = '#666';
+                                    this.style.background = '#f5f5f5';
+                                }
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    });
+                });
+            </script>
+        <?php endif; ?>
+
     </article>
 
     <?php if (empty($displayArticle['is_blocked'])): ?>

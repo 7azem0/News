@@ -103,6 +103,7 @@ class ArticleController {
         $canAccess = true;
         $accessMessage = '';
         $sub = null; 
+        $subscription = null; 
 
         if (($article['visibility'] ?? 'public') === 'subscribed') {
             if (!isset($_SESSION['user_id'])) {
@@ -154,7 +155,6 @@ class ArticleController {
              // Handle Translation Logic
              $subscription = $sub ?: ($this->userModel->getSubscription($_SESSION['user_id'] ?? 0));
              $plan = $subscription['plan'] ?? null;
-             $selectedLang  = $_GET['lang'] ?? 'en';
 
              // Get available languages for plan
              $availableLangs = $this->translator->getAvailableLangsForPlan($plan);
@@ -162,12 +162,27 @@ class ArticleController {
                  $availableLangs = ['en' => 'English'] + $availableLangs;
              }
 
-             if ($selectedLang !== 'en') {
+             // Map article's language to code
+             $languageCodeMap = [
+                 'English' => 'en', 'Arabic' => 'ar', 'French' => 'fr', 'Spanish' => 'es',
+                 'German' => 'de', 'Italian' => 'it', 'Portuguese' => 'pt', 'Russian' => 'ru',
+                 'Chinese' => 'zh', 'Dutch' => 'nl', 'Norwegian' => 'no', 'Swedish' => 'sv',
+                 'Hebrew' => 'he', 'Urdu' => 'ud', 'Japanese' => 'ja', 'Korean' => 'ko'
+             ];
+             $articleLangCode = $languageCodeMap[$article['language'] ?? 'English'] ?? 'en';
+             
+             // Default to article's language, only change if user explicitly selects different language
+             $selectedLang = $_GET['lang'] ?? $articleLangCode;
+
+             // Only translate if selected language is different from article's original language
+             if ($selectedLang !== $articleLangCode) {
                 try {
                     $translated = $this->translator->translateArticle($id, $selectedLang, $plan);
                     $displayArticle['title']   = $translated['title'] ?? $article['title'];
                     $displayArticle['content'] = $translated['content'] ?? $article['content'];
                 } catch (Exception $e) {
+                     // Log translation error for debugging
+                     error_log("Translation failed for article $id: " . $e->getMessage());
                      // fallback handled by $displayArticle = $article
                 }
              }
@@ -175,15 +190,109 @@ class ArticleController {
         
         // Populate variables for View
         if (!isset($availableLangs)) $availableLangs = ['en' => 'English']; 
-        if (!isset($selectedLang)) $selectedLang = 'en';
+        
+        // Map article's language to code for dropdown display
+        $languageCodeMap = [
+            'English' => 'en', 'Arabic' => 'ar', 'French' => 'fr', 'Spanish' => 'es',
+            'German' => 'de', 'Italian' => 'it', 'Portuguese' => 'pt', 'Russian' => 'ru',
+            'Chinese' => 'zh', 'Dutch' => 'nl', 'Norwegian' => 'no', 'Swedish' => 'sv',
+            'Hebrew' => 'he', 'Urdu' => 'ud', 'Japanese' => 'ja', 'Korean' => 'ko'
+        ];
+        $articleLangCode = $languageCodeMap[$article['language'] ?? 'English'] ?? 'en';
+        
+        // Only set selectedLang from URL parameter - don't auto-translate on first visit
+        // If no lang parameter, selectedLang will match article's language (no translation)
+        if (!isset($selectedLang)) {
+            $selectedLang = isset($_GET['lang']) ? $_GET['lang'] : $articleLangCode;
+        }
 
         // Fetch approved comments for this article
         require_once __DIR__ . '/../Models/Comment.php';
         $commentModel = new Comment();
         $comments = $commentModel->getByArticleId($id);
 
+        // Check if user has liked/saved this article
+        $isLiked = false;
+        $isSaved = false;
+        $likeCount = 0;
+        
+        if (isset($_SESSION['user_id'])) {
+            require_once __DIR__ . '/../Models/ArticleInteraction.php';
+            $interactionModel = new ArticleInteraction();
+            $isLiked = $interactionModel->isLiked($_SESSION['user_id'], $id);
+            $isSaved = $interactionModel->isSaved($_SESSION['user_id'], $id);
+            $likeCount = $interactionModel->getLikeCount($id);
+        } else {
+            require_once __DIR__ . '/../Models/ArticleInteraction.php';
+            $interactionModel = new ArticleInteraction();
+            $likeCount = $interactionModel->getLikeCount($id);
+        }
+
+        // Check if user can download PDF (Pro plan or higher)
+        $canDownloadPdf = false;
+        if (isset($_SESSION['user_id']) && $subscription) {
+            require_once __DIR__ . '/../Models/Subscription.php';
+            $subModel = new Subscription();
+            $userPlan = $subModel->getPlanById($subscription['plan_id']);
+            if ($userPlan && (float)$userPlan['price'] >= 29.99) {
+                $canDownloadPdf = true;
+            }
+        }
+
         include VIEWS_PATH . 'Single.php';
     }
+
+    public function downloadPdf() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Ensure user is logged in
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: index.php?page=login');
+            exit;
+        }
+
+        $articleId = $_GET['id'] ?? 0;
+        $article = $this->articleModel->getById($articleId);
+
+        if (!$article) {
+            http_response_code(404);
+            echo "Article not found";
+            return;
+        }
+
+        // Check if user has Pro plan or higher (price >= 29.99)
+        $subscription = $this->userModel->getSubscription($_SESSION['user_id']);
+        
+        if (!$subscription || (isset($subscription['expires_at']) && strtotime($subscription['expires_at']) <= time())) {
+            // No active subscription
+            header('Location: index.php?page=article&id=' . $articleId . '&error=no_subscription');
+            exit;
+        }
+
+        // Get user's plan price
+        require_once __DIR__ . '/../Models/Subscription.php';
+        $subModel = new Subscription();
+        $userPlan = $subModel->getPlanById($subscription['plan_id']);
+        
+        // Get Pro plan price (29.99)
+        $proPrice = 29.99;
+        
+        if (!$userPlan || (float)$userPlan['price'] < $proPrice) {
+            // User doesn't have Pro plan or higher
+            header('Location: index.php?page=article&id=' . $articleId . '&error=upgrade_required');
+            exit;
+        }
+
+        // User has access, generate PDF
+        require_once __DIR__ . '/../Services/PdfGenerator.php';
+        $pdfHtml = PdfGenerator::generateArticlePdf($article);
+        
+        // Output HTML for printing
+        echo $pdfHtml;
+    }
+
     // --- Admin Methods ---
 
     private function ensureAdmin() {

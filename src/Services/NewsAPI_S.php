@@ -68,9 +68,11 @@ curl_setopt_array($ch, [
      * Search news using the everything endpoint.
      *
      * @param string $query
+     * @param string|null $category
+     * @param string|null $language
      * @return array<int, array<string, mixed>>
      */
-    public function search(string $query, ?string $category = null): array {
+    public function search(string $query, ?string $category = null, ?string $language = null): array {
         // Build query with category if present
         if (!empty($category)) {
             $query = trim($query . ' ' . $category);
@@ -87,6 +89,30 @@ curl_setopt_array($ch, [
             'pageSize' => 20,
             'sortBy'   => 'publishedAt'
         ];
+
+        // Add language if specified (NewsAPI supports: ar, de, en, es, fr, he, it, nl, no, pt, ru, sv, ud, zh)
+        if (!empty($language)) {
+            // Map common language names to NewsAPI language codes
+            $languageMap = [
+                'English' => 'en',
+                'Arabic' => 'ar',
+                'French' => 'fr',
+                'Spanish' => 'es',
+                'German' => 'de',
+                'Italian' => 'it',
+                'Portuguese' => 'pt',
+                'Russian' => 'ru',
+                'Chinese' => 'zh',
+                'Dutch' => 'nl',
+                'Norwegian' => 'no',
+                'Swedish' => 'sv',
+                'Hebrew' => 'he',
+                'Urdu' => 'ud'
+            ];
+            
+            $langCode = $languageMap[$language] ?? strtolower(substr($language, 0, 2));
+            $params['language'] = $langCode;
+        }
 
         $url = 'https://newsapi.org/v2/everything?' . http_build_query($params);
 

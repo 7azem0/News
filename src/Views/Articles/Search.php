@@ -44,6 +44,30 @@
                     </div>
                 </div>
 
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-family: var(--font-sans); font-size: 0.8rem; font-weight: bold; margin-bottom: 5px;">Author</label>
+                    <select name="author" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                        <option value="">All Authors</option>
+                        <?php foreach ($allAuthors ?? [] as $a): ?>
+                            <option value="<?= htmlspecialchars($a) ?>" <?= (isset($author) && $author === $a) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($a) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-family: var(--font-sans); font-size: 0.8rem; font-weight: bold; margin-bottom: 5px;">Language</label>
+                    <select name="language" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+                        <option value="">All Languages</option>
+                        <?php foreach ($allLanguages ?? [] as $lang): ?>
+                            <option value="<?= htmlspecialchars($lang) ?>" <?= (isset($language) && $language === $lang) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($lang) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
                 <button type="submit" class="btn-primary" style="width: 100%; border: none; cursor: pointer;">Update Results</button>
                 <a href="index.php?page=search" style="display: block; text-align: center; margin-top: 10px; font-size: 0.8rem; color: #666; text-decoration: underline;">Clear Filters</a>
             </form>

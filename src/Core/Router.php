@@ -38,6 +38,11 @@ class Router {
                 (new ArticleController())->index();
                 break;
 
+            case "article_download_pdf":
+                require_once self::CONTROLLERS_PATH . "Article_C.php";
+                (new ArticleController())->downloadPdf();
+                break;
+
             // News (external API)
             case "news":
                 require_once self::CONTROLLERS_PATH . "Article_C.php";
@@ -51,6 +56,11 @@ class Router {
             case "search":
                 require_once self::CONTROLLERS_PATH . "Search_C.php";
                 (new SearchController())->index();
+                break;
+
+            case "for_you":
+                require_once self::CONTROLLERS_PATH . "ForYou_C.php";
+                (new ForYouController())->index();
                 break;
 
             // Auth & user
@@ -72,6 +82,10 @@ class Router {
             case "account":
                 require_once self::CONTROLLERS_PATH . "User_C.php";
                 (new UserController())->account();
+                break;
+
+            case "profile":
+                include self::VIEWS_PATH . "User/Profile.php";
                 break;
 
             case "logout":
@@ -218,6 +232,17 @@ class Router {
             case "comment_store":
                 require_once self::CONTROLLERS_PATH . "Comment_C.php";
                 (new CommentController())->store();
+                break;
+
+            // Article Interactions (like/save)
+            case "article_like":
+                require_once self::CONTROLLERS_PATH . "ArticleInteraction_C.php";
+                (new ArticleInteractionController())->like();
+                break;
+
+            case "article_save":
+                require_once self::CONTROLLERS_PATH . "ArticleInteraction_C.php";
+                (new ArticleInteractionController())->save();
                 break;
 
             case "plans":

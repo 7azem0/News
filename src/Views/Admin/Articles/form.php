@@ -43,6 +43,25 @@ $action = $isEdit ? 'index.php?page=admin_article_update' : 'index.php?page=admi
                     <input type="text" name="author" class="form-control" value="<?= $article['author'] ?? $_SESSION['username'] ?? 'Admin' ?>" required>
                 </div>
                 <div class="form-group">
+                    <label for="language">Language</label>
+                    <select id="language" name="language" class="form-control" required>
+                        <option value="">Select Language</option>
+                        <?php 
+                        $languages = [
+                            'English', 'Arabic', 'French', 'Spanish', 'German', 'Italian', 
+                            'Portuguese', 'Russian', 'Chinese', 'Dutch', 'Norwegian', 
+                            'Swedish', 'Hebrew', 'Urdu', 'Japanese', 'Korean'
+                        ];
+                        $currentLanguage = $article['language'] ?? 'English';
+                        foreach ($languages as $lang): 
+                        ?>
+                            <option value="<?= htmlspecialchars($lang) ?>" <?= $currentLanguage === $lang ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($lang) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>Category</label>
                     <select name="category" class="form-control">
                         <?php if (!empty($categories)): ?>

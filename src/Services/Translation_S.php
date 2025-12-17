@@ -11,7 +11,7 @@ class TranslationService {
         'fr'=>'French',
         'es'=>'Spanish',
         'de'=>'German',
-        'zh'=>'Chinese (Mandarin)',
+        'zh-Hans'=>'Chinese',
         'ja'=>'Japanese',
         'ko'=>'Korean',
         'ru'=>'Russian',
@@ -21,7 +21,10 @@ class TranslationService {
         'tr'=>'Turkish',
         'nl'=>'Dutch',
         'sv'=>'Swedish',
-        'fa'=>'Persian'
+        'fa'=>'Persian',
+        'he'=>'Hebrew',
+        'ur'=>'Urdu',
+        'no'=>'Norwegian'
     ];
 
     public $availableLangs = [];
@@ -59,54 +62,72 @@ class TranslationService {
         $ch = curl_init($this->apiUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/x-www-form-urlencoded'
+            'Content-Type: application/json'
         ]);
         // timeouts
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
 
         $resp = curl_exec($ch);
         $err = curl_error($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($err) throw new Exception("Error in cURL: $err");
-        if ($httpCode >= 400) throw new Exception("Translation API returned HTTP code $httpCode");
+        if ($err) {
+            error_log("Translation API cURL error: $err");
+            throw new Exception("Error in cURL: $err");
+        }
+        if ($httpCode >= 400) {
+            error_log("Translation API HTTP $httpCode. Response: $resp");
+            throw new Exception("Translation API returned HTTP code $httpCode");
+        }
 
         $data = json_decode($resp, true);
-        if ($data === null) throw new Exception("Invalid JSON response from translation API");
+        if ($data === null) {
+            error_log("Translation API invalid JSON: $resp");
+            throw new Exception("Invalid JSON response from translation API");
+        }
         if (isset($data['error'])) {
+            error_log("Translation API error: " . $data['error']);
             throw new Exception("API Error: " . $data['error']);
         }
 
         // LibreTranslate uses 'translatedText'
-        return $data['translatedText'] ?? $data['translated_text'] ?? null;
+        $translatedText = $data['translatedText'] ?? $data['translated_text'] ?? null;
+        
+        // Log if translation failed or returned same text
+        if (empty($translatedText) || $translatedText === $text) {
+            error_log("Translation may have failed. Source: $sourceLang, Target: $targetLang, Original: " . substr($text, 0, 50));
+        }
+        
+        return $translatedText;
     }
 
     public function getAvailableLangsForPlan(string $plan = null): array {
-        if ($plan === 'Plus') {
+        $plan = strtolower($plan ?? '');
+        if ($plan === 'plus') {
             return [
                 'ar' => 'Arabic',
                 'fr'=>'French',
                 'es'=>'Spanish',
                 'de'=>'German',
-                'zh'=>'Chinese (Mandarin)',
+                'zh-Hans'=>'Chinese',
                 'ja'=>'Japanese',
                 'ko'=>'Korean',
                 'en' => 'English'
             ];
-        } elseif ($plan === 'Basic') {
+        } elseif ($plan === 'basic') {
             return [
                 'ar' => 'Arabic',
                 'en' => 'English'
             ];
-        } elseif ($plan === 'Pro') {
-            return $this->allLangs; // No translation access for Pro plan
+        } elseif ($plan === 'pro' || $plan === 'sunless') {
+            return $this->allLangs; // Full translation access
         } else {
-            // For other plans or no plan, return empty
-            return [];
+            // For other plans or no plan, return basic or empty
+            return ['en' => 'English'];
         }
     }
 
@@ -132,14 +153,24 @@ class TranslationService {
         }
 
         // Fetch original article
-        $stmt = $this->conn->prepare("SELECT title, content FROM articles WHERE id = ?");
+        $stmt = $this->conn->prepare("SELECT title, content, language FROM articles WHERE id = ?");
         $stmt->execute([$articleId]);
         $article = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$article) throw new Exception("Article not found");
 
+        // Map language name to code
+        $languageCodeMap = [
+            'English' => 'en', 'Arabic' => 'ar', 'French' => 'fr', 'Spanish' => 'es',
+            'German' => 'de', 'Italian' => 'it', 'Portuguese' => 'pt', 'Russian' => 'ru',
+            'Chinese' => 'zh-Hans', 'Dutch' => 'nl', 'Norwegian' => 'no', 'Swedish' => 'sv',
+            'Hebrew' => 'he', 'Urdu' => 'ur', 'Japanese' => 'ja', 'Korean' => 'ko'
+        ];
+        
+        $sourceLang = $languageCodeMap[$article['language'] ?? 'English'] ?? 'en';
+
         // Translate pieces
-        $translatedTitle = $this->translateText($article['title'], $targetLang);
-        $translatedContent = $this->translateText($article['content'], $targetLang);
+        $translatedTitle = $this->translateText($article['title'], $targetLang, $sourceLang);
+        $translatedContent = $this->translateText($article['content'], $targetLang, $sourceLang);
 
         // Save as JSON in translated_text
         $payload = json_encode(['title' => $translatedTitle, 'content' => $translatedContent], JSON_UNESCAPED_UNICODE);
