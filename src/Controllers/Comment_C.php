@@ -44,4 +44,35 @@ class CommentController {
         $commentModel->delete($id);
         header('Location: index.php?page=admin_comments');
     }
+
+    // User-facing method
+    public function store() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Ensure user is logged in
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: index.php?page=login');
+            exit;
+        }
+
+        // Validate input
+        $articleId = $_POST['article_id'] ?? 0;
+        $content = trim($_POST['content'] ?? '');
+
+        if (empty($content) || empty($articleId)) {
+            // Redirect back with error
+            header('Location: index.php?page=article&id=' . $articleId . '&error=empty');
+            exit;
+        }
+
+        // Add comment (status defaults to 'pending' in DB)
+        $commentModel = new Comment();
+        $commentModel->add($_SESSION['user_id'], $articleId, $content);
+
+        // Redirect back to article with success message
+        header('Location: index.php?page=article&id=' . $articleId . '&comment=success');
+        exit;
+    }
 }

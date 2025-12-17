@@ -177,6 +177,11 @@ class ArticleController {
         if (!isset($availableLangs)) $availableLangs = ['en' => 'English']; 
         if (!isset($selectedLang)) $selectedLang = 'en';
 
+        // Fetch approved comments for this article
+        require_once __DIR__ . '/../Models/Comment.php';
+        $commentModel = new Comment();
+        $comments = $commentModel->getByArticleId($id);
+
         include VIEWS_PATH . 'Single.php';
     }
     // --- Admin Methods ---

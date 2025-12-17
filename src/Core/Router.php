@@ -8,6 +8,21 @@ class Router {
 
     public static function route(string $page, string $selectedLang = 'en'): void {
 
+        // Start session if not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Define public pages (accessible without login)
+        $publicPages = ['', 'index', 'home', 'login', 'register'];
+        
+        // Check if user is logged in for protected pages
+        if (!in_array(strtolower($page), $publicPages) && !isset($_SESSION['user_id'])) {
+            // Redirect to login page
+            header('Location: index.php?page=login&redirect=' . urlencode($page));
+            exit;
+        }
+
         switch (strtolower($page)) {
 
             // Home
@@ -199,6 +214,12 @@ class Router {
                 (new SubscriptionController())->cancel();
                 break;
 
+            // Comments (user-facing)
+            case "comment_store":
+                require_once self::CONTROLLERS_PATH . "Comment_C.php";
+                (new CommentController())->store();
+                break;
+
             case "plans":
                 include self::VIEWS_PATH . "Subscription/Plans.php";
                 break;
@@ -207,6 +228,8 @@ class Router {
             default:
                 http_response_code(404);
                 echo "Page not found";
+                break;
         }
     }
 }
+
