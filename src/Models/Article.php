@@ -23,6 +23,52 @@ class Article {
         return $result ?: null;
     }
 
+    public function getAdjacentIds(int $id, ?float $maxPrice): array {
+        $result = ['prev' => null, 'next' => null];
+
+        // Fetch current article's date
+        $stmt = $this->conn->prepare("SELECT created_at FROM articles WHERE id = ?");
+        $stmt->execute([$id]);
+        $currentDate = $stmt->fetchColumn();
+        if (!$currentDate) return $result;
+
+        // Base query for accessibility
+        // If maxPrice is null, only public articles are accessible
+        $isSubscribed = ($maxPrice !== null);
+        $accessibleSql = "
+            status = 'published' AND (
+                visibility = 'public' " . ($isSubscribed ? "OR 
+                (visibility = 'subscribed' AND (
+                    required_plan_id IS NULL OR 
+                    (SELECT price FROM plans WHERE id = required_plan_id) <= :maxPrice
+                ))" : "") . "
+            )
+        ";
+
+        $params = [':date' => $currentDate];
+        if ($isSubscribed) $params[':maxPrice'] = $maxPrice;
+
+        // Next (Older)
+        $nextStmt = $this->conn->prepare("
+            SELECT id FROM articles 
+            WHERE created_at < :date AND $accessibleSql
+            ORDER BY created_at DESC LIMIT 1
+        ");
+        $nextStmt->execute($params);
+        $result['next'] = $nextStmt->fetchColumn() ?: null;
+
+        // Prev (Newer)
+        $prevStmt = $this->conn->prepare("
+            SELECT id FROM articles 
+            WHERE created_at > :date AND $accessibleSql
+            ORDER BY created_at ASC LIMIT 1
+        ");
+        $prevStmt->execute($params);
+        $result['prev'] = $prevStmt->fetchColumn() ?: null;
+
+        return $result;
+    }
+
     public function getLatest(int $limit = 5): array {
         $stmt = $this->conn->prepare(
             "SELECT id, title, content as description, thumbnail, COALESCE(scheduled_at, created_at) as publishedAt, author

@@ -156,20 +156,25 @@ class ArticleController {
              $subscription = $sub ?: ($this->userModel->getSubscription($_SESSION['user_id'] ?? 0));
              $plan = $subscription['plan'] ?? null;
 
-             // Get available languages for plan
              $availableLangs = $this->translator->getAvailableLangsForPlan($plan);
-             if (!isset($availableLangs['en'])) {
-                 $availableLangs = ['en' => 'English'] + $availableLangs;
-             }
-
+             
              // Map article's language to code
              $languageCodeMap = [
                  'English' => 'en', 'Arabic' => 'ar', 'French' => 'fr', 'Spanish' => 'es',
                  'German' => 'de', 'Italian' => 'it', 'Portuguese' => 'pt', 'Russian' => 'ru',
                  'Chinese' => 'zh', 'Dutch' => 'nl', 'Norwegian' => 'no', 'Swedish' => 'sv',
-                 'Hebrew' => 'he', 'Urdu' => 'ur', 'Japanese' => 'ja', 'Korean' => 'ko'
+                 'Japanese' => 'ja', 'Korean' => 'ko',
+                 'Hindi' => 'hi', 'Turkish' => 'tr', 'Persian' => 'fa'
              ];
              $articleLangCode = $languageCodeMap[$article['language'] ?? 'English'] ?? 'en';
+
+             // Always include English and the article's original language in dropdown
+             if (!isset($availableLangs['en'])) {
+                 $availableLangs = ['en' => 'English'] + $availableLangs;
+             }
+             if (!isset($availableLangs[$articleLangCode])) {
+                 $availableLangs[$articleLangCode] = $article['language'] ?? 'Original';
+             }
              
              // Default to article's language, only change if user explicitly selects different language
              $selectedLang = $_GET['lang'] ?? $articleLangCode;
@@ -238,6 +243,22 @@ class ArticleController {
                 $canDownloadPdf = true;
             }
         }
+
+        // Fetch adjacent articles for navigation
+        $userMaxPrice = null;
+        if (isset($_SESSION['user_id'])) {
+             // Check for active subscription
+             $activeSub = $this->userModel->getSubscription($_SESSION['user_id']);
+             if ($activeSub && (!isset($activeSub['expires_at']) || strtotime($activeSub['expires_at']) > time())) {
+                 require_once __DIR__ . '/../Models/Subscription.php';
+                 $subModel = new Subscription();
+                 $userP = $subModel->getPlanById($activeSub['plan_id'] ?? 0);
+                 if ($userP) $userMaxPrice = (float)$userP['price'];
+             }
+        }
+        $adjacents = $this->articleModel->getAdjacentIds($id, $userMaxPrice);
+        $prevArticleId = $adjacents['prev'];
+        $nextArticleId = $adjacents['next'];
 
         include VIEWS_PATH . 'Single.php';
     }

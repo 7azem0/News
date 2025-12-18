@@ -11,7 +11,7 @@ class TranslationService {
         'fr'=>'French',
         'es'=>'Spanish',
         'de'=>'German',
-        'zh-Hans'=>'Chinese',
+        'zh'=>'Chinese',
         'ja'=>'Japanese',
         'ko'=>'Korean',
         'ru'=>'Russian',
@@ -21,10 +21,7 @@ class TranslationService {
         'tr'=>'Turkish',
         'nl'=>'Dutch',
         'sv'=>'Swedish',
-        'fa'=>'Persian',
-        'he'=>'Hebrew',
-        'ur'=>'Urdu',
-        'no'=>'Norwegian'
+        'fa'=>'Persian'
     ];
 
     public $availableLangs = [];
@@ -113,7 +110,7 @@ class TranslationService {
                 'fr'=>'French',
                 'es'=>'Spanish',
                 'de'=>'German',
-                'zh-Hans'=>'Chinese',
+                'zh'=>'Chinese',
                 'ja'=>'Japanese',
                 'ko'=>'Korean',
                 'en' => 'English'
@@ -162,8 +159,9 @@ class TranslationService {
         $languageCodeMap = [
             'English' => 'en', 'Arabic' => 'ar', 'French' => 'fr', 'Spanish' => 'es',
             'German' => 'de', 'Italian' => 'it', 'Portuguese' => 'pt', 'Russian' => 'ru',
-            'Chinese' => 'zh-Hans', 'Dutch' => 'nl', 'Norwegian' => 'no', 'Swedish' => 'sv',
-            'Hebrew' => 'he', 'Urdu' => 'ur', 'Japanese' => 'ja', 'Korean' => 'ko'
+            'Chinese' => 'zh', 'Dutch' => 'nl', 'Swedish' => 'sv',
+            'Japanese' => 'ja', 'Korean' => 'ko',
+            'Hindi' => 'hi', 'Turkish' => 'tr', 'Persian' => 'fa'
         ];
         
         $sourceLang = $languageCodeMap[$article['language'] ?? 'English'] ?? 'en';

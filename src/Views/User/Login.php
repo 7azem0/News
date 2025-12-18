@@ -79,6 +79,9 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
                 <label style="font-family: var(--font-sans); font-size: 0.9rem;">
                     <input type="checkbox" name="remember" <?= !empty($old['remember']) ? 'checked' : '' ?>> Remember me
                 </label>
+                <small style="display:block; color:#666; font-size:0.8rem; margin-top:0.5rem;">
+                    Maximum 5 failed attempts allowed every 15 minutes.
+                </small>
             </div>
 
             <button type="submit" class="btn-submit">Log In</button>

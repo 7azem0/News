@@ -14,7 +14,7 @@ class Router {
         }
 
         // Define public pages (accessible without login)
-        $publicPages = ['', 'index', 'home', 'login', 'register'];
+        $publicPages = ['', 'index', 'home', 'login', 'register', 'check_username', 'check_email', 'forgot-password'];
         
         // Check if user is logged in for protected pages
         if (!in_array(strtolower($page), $publicPages) && !isset($_SESSION['user_id'])) {
@@ -87,6 +87,16 @@ class Router {
             case "register":
                 require_once self::CONTROLLERS_PATH . "User_C.php";
                 (new UserController())->register();
+                break;
+
+            case "check_username":
+                require_once self::CONTROLLERS_PATH . "User_C.php";
+                (new UserController())->ajax_check_username();
+                break;
+
+            case "check_email":
+                require_once self::CONTROLLERS_PATH . "User_C.php";
+                (new UserController())->ajax_check_email();
                 break;
 
             case "forgot-password":

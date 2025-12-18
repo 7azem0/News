@@ -58,7 +58,7 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
             </div>
         <?php endif; ?>
 
-        <form method="post" action="<?= e($action) ?>" autocomplete="off">
+        <form method="post" action="<?= e($action) ?>" autocomplete="off" id="regForm">
             <?php if (!empty($csrfToken)): ?>
                 <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
             <?php endif; ?>
@@ -66,16 +66,24 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
             <div class="form-field">
                 <label for="username">Username</label>
                 <input id="username" type="text" name="username" required value="<?= e($old['username'] ?? '') ?>">
+                <small id="username-msg" style="display:block; margin-top:0.25rem; font-size:0.8rem;"></small>
             </div>
 
             <div class="form-field">
                 <label for="email">Email Address</label>
                 <input id="email" type="email" name="email" required value="<?= e($old['email'] ?? '') ?>">
+                <small id="email-msg" style="display:block; margin-top:0.25rem; font-size:0.8rem;"></small>
             </div>
 
             <div class="form-field">
                 <label for="password">Password</label>
                 <input id="password" type="password" name="password" required>
+                <div id="password-strength" style="height:4px; width:100%; background:#eee; margin-top:5px; border-radius:2px;">
+                    <div id="strength-bar" style="height:100%; width:0%; border-radius:2px; transition:0.3s;"></div>
+                </div>
+                <small id="password-msg" style="display:block; margin-top:0.25rem; font-size:0.8rem; color:#666;">
+                    Min 8 chars, mixed case, number & symbol.
+                </small>
             </div>
 
             <div class="form-field">
@@ -83,13 +91,78 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
                 <input id="confirm_password" type="password" name="confirm_password" required>
             </div>
 
-            <button type="submit" class="btn-submit">Register</button>
+            <button type="submit" class="btn-submit" id="submitBtn">Register</button>
         </form>
     </div>
 
     <div style="text-align: center; font-family: var(--font-sans); font-size: 0.9rem;">
         Already have an account? <a href="index.php?page=Login" style="font-weight: bold;">Log in</a>
     </div>
+
+    <script>
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const usernameMsg = document.getElementById('username-msg');
+        const emailMsg = document.getElementById('email-msg');
+        const strengthBar = document.getElementById('strength-bar');
+        const submitBtn = document.getElementById('submitBtn');
+
+        let isUsernameValid = true;
+        let isEmailValid = true;
+
+        async function checkAvailability(type, value, msgElement) {
+            if (!value) {
+                msgElement.textContent = '';
+                return true;
+            }
+            try {
+                const resp = await fetch(`index.php?page=check_${type}&${type}=${encodeURIComponent(value)}`);
+                const data = await resp.json();
+                if (data.available) {
+                    msgElement.textContent = '✓ Available';
+                    msgElement.style.color = 'green';
+                    return true;
+                } else {
+                    msgElement.textContent = '✗ Already taken';
+                    msgElement.style.color = 'red';
+                    return false;
+                }
+            } catch (e) {
+                return true;
+            }
+        }
+
+        usernameInput.addEventListener('blur', async () => {
+            isUsernameValid = await checkAvailability('username', usernameInput.value, usernameMsg);
+        });
+
+        emailInput.addEventListener('blur', async () => {
+            isEmailValid = await checkAvailability('email', emailInput.value, emailMsg);
+        });
+
+        passwordInput.addEventListener('input', () => {
+            const val = passwordInput.value;
+            let strength = 0;
+            if (val.length >= 8) strength += 25;
+            if (/[A-Z]/.test(val)) strength += 25;
+            if (/[0-9]/.test(val)) strength += 25;
+            if (/[@$!%*?&]/.test(val)) strength += 25;
+
+            strengthBar.style.width = strength + '%';
+            if (strength <= 25) strengthBar.style.background = 'red';
+            else if (strength <= 50) strengthBar.style.background = 'orange';
+            else if (strength <= 75) strengthBar.style.background = 'yellow';
+            else strengthBar.style.background = 'green';
+        });
+
+        document.getElementById('regForm').addEventListener('submit', (e) => {
+            if (!isUsernameValid || !isEmailValid) {
+                e.preventDefault();
+                alert('Please fix the errors before submitting.');
+            }
+        });
+    </script>
 
 </body>
 </html>

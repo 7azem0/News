@@ -10,8 +10,13 @@ class UserController {
     public function register() {
         $errors = [];
         $old    = [];
+        $csrfToken = generateCsrfToken();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // CSRF Verification
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die("CSRF token validation failed.");
+            }
 
             // Old values
             $old['username'] = sanitize($_POST['username'] ?? '');
@@ -25,6 +30,13 @@ class UserController {
             elseif (!filter_var($old['email'], FILTER_VALIDATE_EMAIL))
                                              $errors[] = "Invalid email format.";
             if (!$password)                  $errors[] = "Password is required.";
+            
+            // Password Complexity Regex: Min 8 chars, at least one uppercase, one lowercase, one number, one special char
+            $regex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/';
+            if (!preg_match($regex, $password)) {
+                $errors[] = "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.";
+            }
+
             if ($password !== $confirm)      $errors[] = "Passwords do not match.";
 
             // If ok, create user
@@ -43,6 +55,24 @@ class UserController {
         include "views/User/Registeration.php";
     }
 
+    public function ajax_check_username() {
+        $username = sanitize($_GET['username'] ?? '');
+        $user = new User();
+        $available = !$user->existsByUsername($username);
+        header('Content-Type: application/json');
+        echo json_encode(['available' => $available]);
+        exit;
+    }
+
+    public function ajax_check_email() {
+        $email = sanitize($_GET['email'] ?? '');
+        $user = new User();
+        $available = !$user->existsByEmail($email);
+        header('Content-Type: application/json');
+        echo json_encode(['available' => $available]);
+        exit;
+    }
+
 
 
     /* --------------------------------------------------------------
@@ -51,25 +81,40 @@ class UserController {
     public function login() {
         $errors = [];
         $old    = [];
+        $csrfToken = generateCsrfToken();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // CSRF Verification
+            if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+                die("CSRF token validation failed.");
+            }
 
             $old['email'] = sanitize($_POST['email'] ?? '');
             $password     = $_POST['password'] ?? '';
+            $ip           = getIpAddress();
 
             if (!$old['email'])        $errors[] = "Email is required.";
             if (!$password)            $errors[] = "Password is required.";
 
             if (empty($errors)) {
                 $user = new User();
-                $loginResult = $user->login($old['email'], $password);
-
-                if ($loginResult === true) {
-                    redirect('?page=Home');  // Redirect to home/dashboard page
-                } elseif ($loginResult === 'suspended') {
-                    $errors[] = "Your account has been suspended. Please contact support.";
+                
+                // Rate Limiting
+                $attempts = $user->getRecentAttempts($old['email'], $ip);
+                if ($attempts >= 5) {
+                    $errors[] = "Too many failed login attempts. Please try again in 15 minutes.";
                 } else {
-                    $errors[] = "Invalid email or password.";
+                    $loginResult = $user->login($old['email'], $password);
+
+                    if ($loginResult === true) {
+                        $user->clearLoginAttempts($old['email'], $ip);
+                        redirect('?page=Home');  // Redirect to home/dashboard page
+                    } elseif ($loginResult === 'suspended') {
+                        $errors[] = "Your account has been suspended. Please contact support.";
+                    } else {
+                        $user->recordLoginAttempt($old['email'], $ip);
+                        $errors[] = "Invalid email or password. (" . (4 - $attempts) . " attempts remaining)";
+                    }
                 }
             }
         }

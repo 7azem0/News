@@ -335,12 +335,12 @@
         <div style="display: flex; align-items: center; gap: 1.5rem;">
             <!-- Controls -->
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <button id="listen-prev" style="background: none; border: none; cursor: pointer; color: #000;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+                <button id="listen-prev" data-id="<?= $prevArticleId ?>" style="background: none; border: none; cursor: pointer; color: <?= $prevArticleId ? '#000' : '#ccc' ?>; <?= $prevArticleId ? '' : 'pointer-events: none;' ?>"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
                 <button id="listen-toggle" style="background: #000; color: #fff; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;">
                     <svg id="play-icn" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                     <svg id="pause-icn" style="display:none;" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                 </button>
-                <button id="listen-next" style="background: none; border: none; cursor: pointer; color: #000;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18l8.5-6L11 6zm-5-12h2v12H6z"/></svg></button>
+                <button id="listen-next" data-id="<?= $nextArticleId ?>" style="background: none; border: none; cursor: pointer; color: <?= $nextArticleId ? '#000' : '#ccc' ?>; <?= $nextArticleId ? '' : 'pointer-events: none;' ?>"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18l8.5-6L11 6zm-5-12h2v12H6z"/></svg></button>
             </div>
 
             <!-- Speed Selector -->
@@ -392,6 +392,8 @@
         const closeBtn = document.getElementById('close-player');
         const speedSelect = document.getElementById('listen-speed');
         const waveform = document.getElementById('waveform');
+        const prevBtn = document.getElementById('listen-prev');
+        const nextBtn = document.getElementById('listen-next');
         
         const synth = window.speechSynthesis;
         let utterance = null;
@@ -423,6 +425,29 @@
                 startSpeaking();
             }
         };
+
+        if (prevBtn) {
+            prevBtn.onclick = () => {
+                const id = prevBtn.dataset.id;
+                if (id) window.location.href = '?page=article&id=' + id + '&lang=' + currentLang + '&autoplay=true';
+            };
+        }
+
+        if (nextBtn) {
+            nextBtn.onclick = () => {
+                const id = nextBtn.dataset.id;
+                if (id) window.location.href = '?page=article&id=' + id + '&lang=' + currentLang + '&autoplay=true';
+            };
+        }
+
+        // Autoplay check on page load
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('autoplay') === 'true') {
+            setTimeout(() => {
+                player.style.height = '100px';
+                startSpeaking();
+            }, 500); // Small delay to ensure voices are loaded
+        }
 
         speedSelect.onchange = () => {
             if (synth.speaking) {

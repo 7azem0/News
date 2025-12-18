@@ -34,6 +34,56 @@ class User {
         }
     }
 
+    public function existsByUsername(string $username): bool {
+        $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+        $stmt->execute([$username]);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
+    public function existsByEmail(string $email): bool {
+        $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
+    /* --- Login Rate Limiting --- */
+
+    public function recordLoginAttempt(string $email, string $ip) {
+        // Create table if not exists
+        $this->conn->exec("CREATE TABLE IF NOT EXISTS login_attempts (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(255) NOT NULL,
+            ip VARCHAR(45) NOT NULL,
+            attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $stmt = $this->conn->prepare("INSERT INTO login_attempts (email, ip) VALUES (?, ?)");
+        $stmt->execute([$email, $ip]);
+    }
+
+    public function getRecentAttempts(string $email, string $ip, int $minutes = 15): int {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT COUNT(*) FROM login_attempts 
+                WHERE (email = ? OR ip = ?) 
+                AND attempted_at > NOW() - INTERVAL ? MINUTE
+            ");
+            $stmt->execute([$email, $ip, $minutes]);
+            return (int)$stmt->fetchColumn();
+        } catch (PDOException $e) {
+            return 0; // Table might not exist yet
+        }
+    }
+
+    public function clearLoginAttempts(string $email, string $ip) {
+        try {
+            $stmt = $this->conn->prepare("DELETE FROM login_attempts WHERE email = ? OR ip = ?");
+            $stmt->execute([$email, $ip]);
+        } catch (PDOException $e) {
+            // Ignore
+        }
+    }
+
 
     /**
      * Login user

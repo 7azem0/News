@@ -32,10 +32,23 @@ $stmt->execute([$articleId]);
 $article = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$article) die("Article not found");
 
+$languageCodeMap = [
+    'English' => 'en', 'Arabic' => 'ar', 'French' => 'fr', 'Spanish' => 'es',
+    'German' => 'de', 'Italian' => 'it', 'Portuguese' => 'pt', 'Russian' => 'ru',
+    'Chinese' => 'zh', 'Dutch' => 'nl', 'Swedish' => 'sv',
+    'Japanese' => 'ja', 'Korean' => 'ko',
+    'Hindi' => 'hi', 'Turkish' => 'tr', 'Persian' => 'fa'
+];
+$articleLangCode = $languageCodeMap[$article['language'] ?? 'English'] ?? 'en';
+
+if (!isset($availableLangs[$articleLangCode])) {
+    $availableLangs[$articleLangCode] = $article['language'] ?? 'Original';
+}
+
 $translatedArticle = $article;
-if($selectedLang != 'en') {
+if($selectedLang !== $articleLangCode) {
     try {
-        $translatedArticle = $translator->translateArticle($articleId, $selectedLang);
+        $translatedArticle = $translator->translateArticle($articleId, $selectedLang, $plan);
     } catch(Exception $e) {
         // If there's an error in translation, show the original article
         $translatedArticle = ['title'=>$article['title'], 'content'=>$article['content']];
