@@ -14,6 +14,13 @@
                 <span>•</span>
                 <span><?= date('F j, Y', strtotime($article['publishedAt'] ?? 'now')) ?></span>
                 
+                <?php if (empty($displayArticle['is_blocked'])): ?>
+                    <button id="start-listen-btn" class="sans-text" style="background: #000; color: #fff; border: none; padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; letter-spacing: 1px; transition: transform 0.2s;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                        LISTEN
+                    </button>
+                <?php endif; ?>
+
                 <?php if (empty($displayArticle['is_blocked']) && isset($availableLangs, $selectedLang)): ?>
                     <form method="GET" action="" style="margin:0; margin-left: 1rem;">
                         <input type="hidden" name="page" value="article">
@@ -308,5 +315,208 @@
     </div>
 
 </main>
+
+<!-- Listening Mode UI (Hidden initially) -->
+<div id="listening-player" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 0; background: #fff; border-top: 1px solid #000; z-index: 1000; transition: height 0.4s ease; overflow: hidden; box-shadow: 0 -10px 30px rgba(0,0,0,0.1);">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 2rem;">
+            <!-- Simple Waveform Animation -->
+            <div id="waveform" style="display: flex; align-items: flex-end; gap: 3px; height: 24px; width: 40px;">
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+            </div>
+            <div>
+                <div style="font-family: var(--font-sans); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; color: #666; letter-spacing: 1px;">Listening Mode</div>
+                <div id="player-title" style="font-family: var(--font-serif); font-size: 1rem; font-weight: 700; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;">
+                    <?= htmlspecialchars($displayArticle['title'] ?? $article['title']) ?>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <!-- Controls -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button id="listen-prev" style="background: none; border: none; cursor: pointer; color: #000;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+                <button id="listen-toggle" style="background: #000; color: #fff; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;">
+                    <svg id="play-icn" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="pause-icn" style="display:none;" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button id="listen-next" style="background: none; border: none; cursor: pointer; color: #000;"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18l8.5-6L11 6zm-5-12h2v12H6z"/></svg></button>
+            </div>
+
+            <!-- Speed Selector -->
+            <div style="display: flex; align-items: center; gap: 0.5rem; background: #f5f5f5; padding: 4px 12px; border-radius: 4px;">
+                <span style="font-family: var(--font-sans); font-size: 0.75rem; font-weight: 800; color: #666;">SPEED</span>
+                <select id="listen-speed" style="background: none; border: none; font-family: var(--font-sans); font-size: 0.85rem; font-weight: 800; cursor: pointer; outline: none;">
+                    <option value="1">1x</option>
+                    <option value="1.25">1.25x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2x</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="close-player" style="background: none; border: none; cursor: pointer; padding: 10px; color: #888;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+    </div>
+</div>
+
+<style>
+    .wave-bar { width: 4px; background: #000; border-radius: 2px; }
+    .wave-bar:nth-child(1) { height: 40%; }
+    .wave-bar:nth-child(2) { height: 70%; }
+    .wave-bar:nth-child(3) { height: 100%; }
+    .wave-bar:nth-child(4) { height: 60%; }
+    .wave-bar:nth-child(5) { height: 30%; }
+
+    .playing .wave-bar { animation: wave 1s ease-in-out infinite; }
+    .playing .wave-bar:nth-child(1) { animation-delay: 0s; }
+    .playing .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+    .playing .wave-bar:nth-child(3) { animation-delay: 0.4s; }
+    .playing .wave-bar:nth-child(4) { animation-delay: 0.1s; }
+    .playing .wave-bar:nth-child(5) { animation-delay: 0.3s; }
+
+    @keyframes wave {
+        0%, 100% { transform: scaleY(0.4); }
+        50% { transform: scaleY(1.2); }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('start-listen-btn');
+        const player = document.getElementById('listening-player');
+        const toggleBtn = document.getElementById('listen-toggle');
+        const playIcn = document.getElementById('play-icn');
+        const pauseIcn = document.getElementById('pause-icn');
+        const closeBtn = document.getElementById('close-player');
+        const speedSelect = document.getElementById('listen-speed');
+        const waveform = document.getElementById('waveform');
+        
+        const synth = window.speechSynthesis;
+        let utterance = null;
+        let isPaused = false;
+
+        if (!btn) return;
+
+        btn.onclick = () => {
+            player.style.height = '100px';
+            if (!synth.speaking) startSpeaking();
+        };
+
+        closeBtn.onclick = () => {
+            player.style.height = '0';
+            synth.cancel();
+            updateUI(false);
+        };
+
+        toggleBtn.onclick = () => {
+            if (synth.speaking && !isPaused) {
+                synth.pause();
+                isPaused = true;
+                updateUI(false);
+            } else if (isPaused) {
+                synth.resume();
+                isPaused = false;
+                updateUI(true);
+            } else {
+                startSpeaking();
+            }
+        };
+
+        speedSelect.onchange = () => {
+            if (synth.speaking) {
+                const currentText = utterance.text;
+                synth.cancel();
+                startSpeaking(currentText); 
+            }
+        };
+
+        const currentLang = '<?= $selectedLang ?>';
+        const langMap = {
+            'en': 'en-US', 'es': 'es-ES', 'fr': 'fr-FR', 'de': 'de-DE',
+            'it': 'it-IT', 'pt': 'pt-PT', 'ru': 'ru-RU', 'zh': 'zh-CN',
+            'nl': 'nl-NL', 'no': 'no-NO', 'sv': 'sv-SE', 'he': 'he-IL',
+            'ar': 'ar-SA', 'ur': 'ur-PK', 'ja': 'ja-JP', 'ko': 'ko-KR'
+        };
+
+        // Initialize voices
+        let voices = [];
+        const loadVoices = () => {
+            voices = synth.getVoices();
+            console.log("[TTS] Loaded " + voices.length + " voices");
+        };
+        if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
+        loadVoices();
+
+        function startSpeaking() {
+            const bodyEl = document.querySelector('.article-body');
+            const titleEl = document.querySelector('.serif-headline');
+            const content = bodyEl ? bodyEl.innerText : '';
+            const title = titleEl ? titleEl.innerText : '';
+            const textToRead = title + ". " + content;
+
+            if (!textToRead.trim()) return;
+
+            // Stop any current reading
+            synth.cancel();
+            isPaused = false;
+
+            const targetLang = langMap[currentLang] || 'en-US';
+            const langPrefix = targetLang.split('-')[0].toLowerCase();
+            
+            // Search for a voice that matches the language
+            const findVoice = () => {
+                const allVoices = synth.getVoices();
+                return allVoices.find(v => v.lang.toLowerCase() === targetLang.toLowerCase()) ||
+                       allVoices.find(v => v.lang.toLowerCase().startsWith(langPrefix)) ||
+                       allVoices.find(v => v.name.toLowerCase().includes('arabic') && langPrefix === 'ar');
+            };
+
+            const selectedVoice = findVoice();
+            console.log("[TTS] Selected Voice:", selectedVoice ? selectedVoice.name : "None found, using system default");
+
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = targetLang;
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                // Some browsers need the lang to match the voice exactly to avoid defaulting to English
+                utterance.lang = selectedVoice.lang;
+            }
+            
+            utterance.rate = parseFloat(speedSelect.value);
+
+            utterance.onstart = () => updateUI(true);
+            utterance.onend = () => {
+                updateUI(false);
+                player.style.height = '0';
+            };
+            utterance.onerror = (e) => {
+                console.error("[TTS] Error:", e);
+                updateUI(false);
+            };
+
+            // Force RTL UI for Arabic/Hebrew/Urdu
+            document.getElementById('player-title').style.direction = ['ar', 'he', 'ur'].includes(currentLang) ? 'rtl' : 'ltr';
+
+            // Speak after a small timeout to let cancel() settle
+            setTimeout(() => {
+                synth.speak(utterance);
+            }, 100);
+        }
+
+        function updateUI(playing) {
+            if (playing) {
+                playIcn.style.display = 'none';
+                pauseIcn.style.display = 'block';
+                waveform.classList.add('playing');
+            } else {
+                playIcn.style.display = 'block';
+                pauseIcn.style.display = 'none';
+                waveform.classList.remove('playing');
+            }
+        }
+    });
+</script>
 
 <?php include __DIR__ . '/../Layout/Footer.php'; ?>

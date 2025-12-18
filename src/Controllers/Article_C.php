@@ -167,7 +167,7 @@ class ArticleController {
                  'English' => 'en', 'Arabic' => 'ar', 'French' => 'fr', 'Spanish' => 'es',
                  'German' => 'de', 'Italian' => 'it', 'Portuguese' => 'pt', 'Russian' => 'ru',
                  'Chinese' => 'zh', 'Dutch' => 'nl', 'Norwegian' => 'no', 'Swedish' => 'sv',
-                 'Hebrew' => 'he', 'Urdu' => 'ud', 'Japanese' => 'ja', 'Korean' => 'ko'
+                 'Hebrew' => 'he', 'Urdu' => 'ur', 'Japanese' => 'ja', 'Korean' => 'ko'
              ];
              $articleLangCode = $languageCodeMap[$article['language'] ?? 'English'] ?? 'en';
              
@@ -196,7 +196,7 @@ class ArticleController {
             'English' => 'en', 'Arabic' => 'ar', 'French' => 'fr', 'Spanish' => 'es',
             'German' => 'de', 'Italian' => 'it', 'Portuguese' => 'pt', 'Russian' => 'ru',
             'Chinese' => 'zh', 'Dutch' => 'nl', 'Norwegian' => 'no', 'Swedish' => 'sv',
-            'Hebrew' => 'he', 'Urdu' => 'ud', 'Japanese' => 'ja', 'Korean' => 'ko'
+            'Hebrew' => 'he', 'Urdu' => 'ur', 'Japanese' => 'ja', 'Korean' => 'ko'
         ];
         $articleLangCode = $languageCodeMap[$article['language'] ?? 'English'] ?? 'en';
         
