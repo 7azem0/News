@@ -63,6 +63,21 @@ class Router {
                 (new ForYouController())->index();
                 break;
 
+            case "morning":
+                require_once self::CONTROLLERS_PATH . "Briefing_C.php";
+                (new BriefingController())->morning();
+                break;
+
+            case "live":
+                require_once self::CONTROLLERS_PATH . "Briefing_C.php";
+                (new BriefingController())->live();
+                break;
+
+            case "ajax_live":
+                require_once self::CONTROLLERS_PATH . "Briefing_C.php";
+                (new BriefingController())->fetchLiveJson();
+                break;
+
             // Auth & user
             case "login":
                 require_once self::CONTROLLERS_PATH . "User_C.php";

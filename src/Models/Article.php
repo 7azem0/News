@@ -33,7 +33,22 @@ class Article {
         );
         $stmt->bindValue(1, $limit, PDO::PARAM_INT);
         $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
+    /**
+     * Get only featured articles.
+     */
+    public function getFeatured(int $limit = 3): array {
+        $stmt = $this->conn->prepare(
+            "SELECT id, title, content as description, thumbnail, COALESCE(scheduled_at, created_at) as publishedAt, author
+             FROM articles
+             WHERE status = 'published' AND is_featured = 1
+             ORDER BY COALESCE(scheduled_at, created_at) DESC
+             LIMIT ?"
+        );
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

@@ -18,13 +18,13 @@ class NewsAPIService {
      * @param string $keyword
      * @return array<int, array<string, mixed>>
      */
-    public function fetch(string $country = 'us', string $category = 'general', string $keyword = ''): array {
+    public function fetch(string $country = 'us', string $category = 'general', string $keyword = '', int $pageSize = 30): array {
     $params = array_filter([
         'country'  => $country,
         'category' => $category,
         'q'        => $keyword,
         'apiKey'   => $this->apiKey,
-        'pageSize' => 30
+        'pageSize' => $pageSize
     ]);
 
     $url = $this->apiUrl . '?' . http_build_query($params);
@@ -150,4 +150,40 @@ curl_setopt_array($ch, [
         return $data['articles'] ?? [];
     }
 
+    /**
+     * Get top headlines for a specific category or country.
+     */
+    public function getTopHeadlines(string $category = 'general', string $country = 'us', int $pageSize = 20): array {
+        return $this->fetch($country, $category, '', $pageSize);
+    }
+
+    /**
+     * Get the absolute latest breaking news.
+     */
+    public function getBreakingNews(int $limit = 10): array {
+        // Use everything endpoint to get most recent articles with high relevance words
+        $params = [
+            'q'        => 'breaking OR live OR updates',
+            'apiKey'   => $this->apiKey,
+            'pageSize' => $limit,
+            'sortBy'   => 'publishedAt'
+        ];
+
+        $url = 'https://newsapi.org/v2/everything?' . http_build_query($params);
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_HTTPHEADER     => [
+                "User-Agent: NewsApp/1.0",
+            ],
+        ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $data = json_decode($response, true);
+        return $data['articles'] ?? [];
+    }
 }

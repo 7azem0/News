@@ -1,6 +1,6 @@
 <?php include __DIR__ . '/../Layout/Header.php'; ?>
 
-<main class="container" style="max-width: 1000px; padding-top: 2rem;">
+<main class="container" style="padding-top: 2rem;">
     <!-- Recommendations Section -->
     <section class="foryou-section" style="margin-bottom: 4rem;">
         <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 0.5rem; margin-bottom: 2rem;">
