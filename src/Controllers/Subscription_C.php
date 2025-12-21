@@ -35,8 +35,7 @@ class SubscriptionController {
             exit;
         }
 
-        $db = new Database();
-        $conn = $db->connect();
+        $conn = Database::getInstance()->connect();
 
         try {
             $stmt = $conn->prepare(
@@ -73,8 +72,7 @@ class SubscriptionController {
             exit;
         }
 
-        $db = new Database();
-        $conn = $db->connect();
+        $conn = Database::getInstance()->connect();
 
         // We can either delete the row OR set expires_at to NOW()
         // Setting to NOW() is better so we keep history or just let it expire immediately.
@@ -188,8 +186,7 @@ class SubscriptionController {
         $duration = (int)$_POST['duration_days'];
         
         // Simple manual insert/update
-        $db = new Database();
-        $conn = $db->connect();
+        $conn = Database::getInstance()->connect();
         
         // Get Plan Name for legacy column + Plan ID
         $plan = $subModel->getPlanById($planId);

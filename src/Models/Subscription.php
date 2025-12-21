@@ -5,8 +5,7 @@ class Subscription {
     private $conn;
 
     public function __construct() {
-        $db = new Database();
-        $this->conn = $db->connect();
+        $this->conn = Database::getInstance()->connect();
     }
 
     // --- Plan Methods ---

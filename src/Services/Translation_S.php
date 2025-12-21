@@ -27,8 +27,7 @@ class TranslationService {
     public $availableLangs = [];
 
     public function __construct() {
-        $db = new Database();
-        $this->conn = $db->connect();
+        $this->conn = Database::getInstance()->connect();
 
         // Allow overriding the translation API endpoint and key via env vars.
         // Defaults to the public LibreTranslate instance (no key required).

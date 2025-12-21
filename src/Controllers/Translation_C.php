@@ -10,8 +10,7 @@ require_once __DIR__ . '/../Services/Translation_S.php';
 require_once __DIR__ . '/../Models/User.php';
 
 
-$db = new Database();
-$PDO = $db->connect();
+$PDO = Database::getInstance()->connect();
 $translator = new TranslationService();
 
 // Get user subscription to filter available languages

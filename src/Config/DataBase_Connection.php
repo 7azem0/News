@@ -1,21 +1,31 @@
 <?php
 if (!class_exists('Database')) {
 class Database {
-    private $host = "db";         
-    private $db_name = "News";    
-    private $username = "Rain";
-    private $password = "Sunny";
-    public $conn;
+    private static $instance = null;
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
+    public $conn = null;
 
-    public function __construct() {
+    private function __construct() {
         $this->host = getenv('DB_HOST') ?: 'db';
         $this->db_name = getenv('DB_NAME') ?: 'News';
         $this->username = getenv('DB_USER') ?: 'Rain';
         $this->password = getenv('DB_PASS') ?: 'Sunny';
     }
 
+    public static function getInstance(): Database {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
     public function connect() {
-        $this->conn = null;
+        if ($this->conn !== null) {
+            return $this->conn;
+        }
 
         try {
             $this->conn = new PDO(

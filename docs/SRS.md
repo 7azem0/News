@@ -102,17 +102,7 @@ The system is a web-based platform that aggregates news articles, provides trans
 - **Containerization**: Docker
 - **Translation**: LibreTranslate API
 
-## 5. Database Schema
-Key tables include:
-- `users` - User accounts and authentication
-- `articles` - News content
-- `article_likes` - User interactions
-- `categories` - Content organization
-- `subscriptions` - User subscription data
-- `translations` - Multi-language support
-- `comments` - User discussions
-
-## 6. Audio Processing
+## 5. Audio Processing
 - Text-to-speech conversion using browser's Web Speech API
 - Support for multiple voice profiles
 - Background audio processing for longer articles
