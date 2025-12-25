@@ -6,8 +6,7 @@
     <link rel="stylesheet" href="../../Assets/CSS/theme.css">
     <style>
         .admin-page { padding: 2rem; max-width: 1000px; margin: 0 auto; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .btn { padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; display: inline-block; cursor: pointer; border: none; }
+        .btn { padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; }
         .btn-primary { background: #333; color: white; }
         .btn-danger { background: #d32f2f; color: white; }
         .table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -16,6 +15,9 @@
 </head>
 <body>
     <div class="admin-page">
+        <?php include __DIR__ . '/../Sidebar.php'; ?>
+        <main>
+            <div class="admin-page">
         <div class="page-header">
             <h1>Manage Subscription Plans</h1>
             <div>
@@ -51,5 +53,7 @@
             </tbody>
         </table>
     </div>
-</body>
-</html>
+        </main>
+    </div>
+</div>
+

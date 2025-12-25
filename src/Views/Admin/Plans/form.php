@@ -2,6 +2,7 @@
 $isEdit = isset($plan);
 $action = $isEdit ? 'index.php?page=admin_plan_update' : 'index.php?page=admin_plan_store';
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,15 +11,16 @@ $action = $isEdit ? 'index.php?page=admin_plan_update' : 'index.php?page=admin_p
     <link rel="stylesheet" href="../../Assets/CSS/theme.css">
     <style>
         .admin-page { padding: 2rem; max-width: 600px; margin: 0 auto; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-group { margin-bottom: 1.25rem; }
         .form-control { width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; }
-        textarea.form-control { height: 100px; font-family: inherit; }
-        .btn { padding: 0.8rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; background: #333; color: white; font-size: 1rem; }
+        .btn { padding: 0.8rem 1.25rem; background: #333; color: white; border: none; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="admin-page">
+        <?php include __DIR__ . '/../Sidebar.php'; ?>
+        <main>
+            <div class="admin-page">
         <h1><?= $isEdit ? 'Edit Plan' : 'Create New Plan' ?></h1>
         
         <form action="<?= $action ?>" method="POST">
@@ -50,5 +52,7 @@ $action = $isEdit ? 'index.php?page=admin_plan_update' : 'index.php?page=admin_p
             <a href="index.php?page=admin_plans" style="margin-left: 1rem;">Cancel</a>
         </form>
     </div>
-</body>
-</html>
+        </main>
+    </div>
+</div>
+

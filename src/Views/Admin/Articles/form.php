@@ -2,6 +2,7 @@
 $isEdit = isset($article);
 $action = $isEdit ? 'index.php?page=admin_article_update' : 'index.php?page=admin_article_store';
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,6 +21,9 @@ $action = $isEdit ? 'index.php?page=admin_article_update' : 'index.php?page=admi
 </head>
 <body>
     <div class="admin-page">
+        <?php include __DIR__ . '/../Sidebar.php'; ?>
+        <main>
+            <div class="admin-page">
         <h1><?= $isEdit ? 'Edit Article' : 'Create New Article' ?></h1>
         
         <?php if (isset($error)): ?>
@@ -156,5 +160,8 @@ $action = $isEdit ? 'index.php?page=admin_article_update' : 'index.php?page=admi
             <a href="index.php?page=admin_articles" style="margin-left: 1rem;">Cancel</a>
         </form>
     </div>
-</body>
-</html>
+            </div>
+        </main>
+    </div>
+</div>
+

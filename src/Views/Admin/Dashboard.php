@@ -28,13 +28,14 @@
 </head>
 <body>
     <div class="admin-container">
+        <?php include __DIR__ . '/Sidebar.php'; ?>
+        <main>
         <header class="admin-header">
             <h1>Administration Panel</h1>
             <p>Welcome back, Admin.</p>
             <a href="index.php?page=Home">Return to Site</a>
         </header>
         
-        <main>
             <div class="admin-card">
                 <h2>Dashboard Overview</h2>
                 <p>Manage users, articles, and site settings here.</p>
@@ -64,5 +65,5 @@
             </div>
         </main>
     </div>
-</body>
-</html>
+</div>
+

@@ -12,8 +12,18 @@ $mainStory = $latestArticles[0] ?? null;
 $sideStories = array_slice($latestArticles, 1, 3);
 
 ?>
-<div class="container" style="margin-top: 2rem;">
-    <div class="newspaper-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+<style>
+.lead-story-image { width: 100%; height: 360px; max-height: 60vh; overflow: hidden; border-radius: 6px; background: #f3f4f6; }
+.lead-story-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 1024px) {
+  .lead-story-image { height: 300px; }
+}
+@media (max-width: 600px) {
+  .lead-story-image { height: 200px; }
+}
+</style>
+<div class="container" style="max-width: 1100px; margin: 2rem auto; padding: 0 1rem;">
+    <div class="newspaper-grid" style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 2rem; margin-bottom: 3rem;">
         
         <!-- Main Column -->
         <section class="main-column">
@@ -40,9 +50,8 @@ $sideStories = array_slice($latestArticles, 1, 3);
 
                     <?php if (!empty($mainStory['thumbnail'])): ?>
                         <div style="margin-bottom: 1rem;">
-                            <img src="<?= htmlspecialchars($mainStory['thumbnail']) ?>" alt="Cover" style="width: 100%; height: auto; display: block;">
-                            <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">
-                                <?= htmlspecialchars($mainStory['title']) ?> (Image Source)
+                            <div class="lead-story-image">
+                                <img src="<?= htmlspecialchars($mainStory['thumbnail']) ?>" alt="Cover">
                             </div>
                         </div>
                     <?php endif; ?>

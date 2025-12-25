@@ -8,15 +8,10 @@ $message = $message ?? null;
 function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 ?>
 
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Register | Digital Newsstand</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../Assets/CSS/theme.css">
-    <link rel="stylesheet" href="../../Assets/CSS/account.css">
+<?php include __DIR__ . '/../Layout/Header.php'; ?>
+
+<main class="container" style="max-width: 800px; padding: 2rem 1rem; background-color: #f9f9f9;">
+
     <style>
         .auth-container {
             max-width: 400px;
@@ -32,12 +27,6 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
         .btn-submit { width: 100%; background: black; color: white; padding: 1rem; border: none; font-weight: bold; cursor: pointer; }
         .btn-submit:hover { opacity: 0.8; }
     </style>
-</head>
-<body style="background-color: #f9f9f9;">
-
-    <div style="text-align: center; margin-top: 2rem;">
-        <a href="index.php" style="font-family: 'Playfair Display', serif; font-size: 2rem; color: black; text-decoration: none; font-weight: 900;">Digital Newsstand</a>
-    </div>
 
     <div class="auth-container">
         <h2 class="serif-headline" style="font-size: 1.5rem; margin-bottom: 2rem;">Create your account</h2>
@@ -164,5 +153,4 @@ function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
         });
     </script>
 
-</body>
-</html>
+<?php include __DIR__ . '/../Layout/Footer.php'; ?>

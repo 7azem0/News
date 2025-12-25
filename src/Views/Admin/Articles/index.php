@@ -20,6 +20,9 @@
 </head>
 <body>
     <div class="admin-page">
+        <?php include __DIR__ . '/../Sidebar.php'; ?>
+        <main>
+            <div class="admin-page">
         <div class="page-header">
             <h1>Manage Articles</h1>
             <div>
@@ -63,5 +66,7 @@
             </tbody>
         </table>
     </div>
-</body>
-</html>
+        </main>
+    </div>
+</div>
+

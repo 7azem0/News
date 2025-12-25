@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,6 +23,9 @@
 </head>
 <body>
     <div class="admin-page">
+        <?php include __DIR__ . '/../Sidebar.php'; ?>
+        <main>
+            <div class="admin-page">
         <div class="page-header">
             <h1>Moderate Comments</h1>
             <a href="index.php?page=admin" class="btn">Back to Dashboard</a>
@@ -75,5 +79,7 @@
             </tbody>
         </table>
     </div>
-</body>
-</html>
+        </main>
+    </div>
+</div>
+

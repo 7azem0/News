@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,6 +15,9 @@
 </head>
 <body>
     <div class="admin-page">
+        <?php include __DIR__ . '/../Sidebar.php'; ?>
+        <main>
+            <div class="admin-page">
         <h1>Assign Subscription</h1>
         
         <form action="index.php?page=admin_subscription_store_assignment" method="POST">
@@ -51,5 +55,7 @@
             <a href="index.php?page=admin_users" style="margin-left: 1rem;">Cancel</a>
         </form>
     </div>
-</body>
-</html>
+        </main>
+    </div>
+</div>
+
