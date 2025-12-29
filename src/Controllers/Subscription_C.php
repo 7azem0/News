@@ -22,6 +22,10 @@ class SubscriptionController {
             exit;
         }
 
+        http_response_code(403);
+        echo json_encode(['error' => 'Payment required. Please subscribe via PayPal checkout.']);
+        exit;
+
         $planId = $_POST['plan_id'] ?? 0;
         $autoRenew = isset($_POST['autoRenew']) ? 1 : 0;
 

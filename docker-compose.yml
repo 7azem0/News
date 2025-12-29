@@ -16,6 +16,11 @@ services:
       - MYSQL_DB=News
       - LIBRE_TRANSLATE_URL=http://libretranslate:5000/translate
       - NEWS_API_KEY=e519a661788549ae8cea66aa8c762724
+      - PAYPAL_MODE=${PAYPAL_MODE:-sandbox}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
+      - PAYPAL_SECRET=${PAYPAL_SECRET}
+      - PAYPAL_CURRENCY=${PAYPAL_CURRENCY:-USD}
+      - PAYPAL_AMOUNT=${PAYPAL_AMOUNT:-0.10}
 
   db:
     image: mysql:8.0
