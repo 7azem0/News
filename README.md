@@ -102,6 +102,20 @@ USE News;
 
 </br>
 
+<h2> PayPal Payment (Subscriptions) </h2>
+
+To enable paid subscriptions on <code>index.php?page=plans</code>, set these environment variables:
+
+<pre>
+PAYPAL_MODE=sandbox   # or live
+PAYPAL_CLIENT_ID=...
+PAYPAL_SECRET=...
+</pre>
+
+<b>Note:</b> <code>auto_renew</code> is saved in the database, but actual recurring charging requires additional PayPal Subscriptions setup / scheduled renewals.
+
+</br>
+
 <b>4. Basic MySQL commands you can use</b>
 
 - Show all databases:

@@ -17,6 +17,10 @@ $allPlans = $subModel->getAllPlans();
 
 // Check if subscription is valid
 $isActive = $subscription && strtotime($subscription['expires_at']) > time();
+
+$paypalClientId = getenv('PAYPAL_CLIENT_ID') ?: '';
+$paypalCurrency = getenv('PAYPAL_CURRENCY') ?: 'USD';
+$displayPrice = getenv('PAYPAL_AMOUNT') ?: '0.10';
 ?>
 
 <!DOCTYPE html>
@@ -24,6 +28,9 @@ $isActive = $subscription && strtotime($subscription['expires_at']) > time();
 <head>
     <meta charset="UTF-8">
     <title>Subscription Plans - Digital Newsstand</title>
+    <?php if ($paypalClientId !== ''): ?>
+        <script src="https://www.paypal.com/sdk/js?client-id=<?= htmlspecialchars($paypalClientId) ?>&currency=<?= htmlspecialchars($paypalCurrency) ?>&components=buttons"></script>
+    <?php endif; ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -231,7 +238,7 @@ $isActive = $subscription && strtotime($subscription['expires_at']) > time();
                 </div>
             <?php endif; ?>
 
-            <form class="subscription-form" id="subscriptionForm" method="POST" action="index.php?page=subscribe">
+            <form class="subscription-form" id="subscriptionForm" method="POST" action="#">
                 <div class="subscription-plans">
                     <?php foreach ($allPlans as $plan): ?>
                         <div class="subscription-plan" onclick="document.getElementById('plan_<?= $plan['id'] ?>').click()">
@@ -240,7 +247,7 @@ $isActive = $subscription && strtotime($subscription['expires_at']) > time();
                                 style="display: none;">
                             
                             <h3><?= htmlspecialchars($plan['name']) ?></h3>
-                            <div class="price">$<?= number_format($plan['price'], 2) ?><span>/<?= (int)$plan['duration_days'] === 30 ? 'month' : 'year' ?></span></div>
+                            <div class="price"><?= htmlspecialchars($displayPrice) ?> <?= htmlspecialchars($paypalCurrency) ?><span>/<?= (int)$plan['duration_days'] === 30 ? 'month' : 'year' ?></span></div>
                             
                             <ul class="features">
                                 <?php 
@@ -261,9 +268,14 @@ $isActive = $subscription && strtotime($subscription['expires_at']) > time();
                     </label>
                 </div>
 
-                <button type="submit" class="subscribe-btn" id="subscribeBtn">
-                    <?php echo $isActive ? 'Switch Plan / Update Renewal' : 'Subscribe Now'; ?>
-                </button>
+                <?php if ($paypalClientId === ''): ?>
+                    <div class="current-subscription-banner" style="background: #e74c3c;">
+                        <h2>PayPal not configured</h2>
+                        <p>Set `PAYPAL_CLIENT_ID` and `PAYPAL_SECRET` in your environment.</p>
+                    </div>
+                <?php else: ?>
+                    <div id="paypalButtons" style="margin-top: 10px;"></div>
+                <?php endif; ?>
             </form>
             
             <?php if ($isActive): ?>
@@ -317,40 +329,89 @@ $isActive = $subscription && strtotime($subscription['expires_at']) > time();
             }
 
 
-            // Handle form submission
-            function initSubscriptionForm() {
-                var subscriptionForm = document.getElementById('subscriptionForm');
-                var subscribeBtn = document.getElementById('subscribeBtn');
+            function getSelectedPlanId() {
+                var checkedInput = document.querySelector('input[name="plan_id"]:checked');
+                return checkedInput ? checkedInput.value : null;
+            }
 
-                if (subscriptionForm && subscribeBtn) {
-                    subscriptionForm.addEventListener('submit', function(event) {
-                        event.preventDefault();
+            function getAutoRenewValue() {
+                var autoRenew = document.getElementById('autoRenew');
+                return autoRenew && autoRenew.checked ? '1' : '';
+            }
 
-                        var formData = new FormData(subscriptionForm);
-                        subscribeBtn.disabled = true;
-                        subscribeBtn.textContent = 'Processing...';
+            function initPayPalButtons() {
+                var container = document.getElementById('paypalButtons');
+                if (!container) return;
+                if (typeof paypal === 'undefined') return;
 
-                        fetch('index.php?page=subscribe', {
+                paypal.Buttons({
+                    createOrder: function() {
+                        var planId = getSelectedPlanId();
+                        if (!planId) {
+                            alert('Please select a plan first.');
+                            return;
+                        }
+
+                        var body = new URLSearchParams();
+                        body.set('plan_id', planId);
+                        if (getAutoRenewValue()) body.set('autoRenew', '1');
+
+                        return fetch('index.php?page=paypal_create_order', {
                             method: 'POST',
-                            body: formData
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: body.toString()
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (!data.success) {
-                                alert('Error: ' + data.error);
-                            }
-                            window.location.reload(); // Always reload on success
-                        })
-                        .catch(error => {
-                            alert('Error processing subscription. Please try again.');
-                            console.error('Subscription error:', error);
-                        })
-                        .finally(() => {
-                            subscribeBtn.disabled = false;
-                            subscribeBtn.textContent = subscribeBtn.textContent.includes('Update') ? 'Update Subscription' : 'Subscribe Now';
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            if (!data.success) throw new Error(data.error || 'Could not create order');
+                            return data.id;
                         });
-                    });
+                    },
+                    onApprove: function(data, actions) {
+                        var body = new URLSearchParams();
+                        body.set('order_id', data.orderID);
+
+                        return fetch('index.php?page=paypal_capture_order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: body.toString()
+                        })
+                        .then(function(res) { return res.json(); })
+                        .then(function(result) {
+                            if (!result.success) {
+                                if (result.issue === 'INSTRUMENT_DECLINED' && actions && typeof actions.restart === 'function') {
+                                    return actions.restart();
+                                }
+                                throw new Error(result.error || 'Payment failed');
+                            }
+                            window.location.reload();
+                        });
+                    },
+                    onError: function(err) {
+                        console.error('PayPal error:', err);
+                        var message = (err && err.message) ? err.message : (typeof err === 'string' ? err : 'Payment error. Please try again.');
+                        alert(message);
+                    }
+                }).render('#paypalButtons');
+            }
+
+            function waitForPayPalAndInit(retries) {
+                var container = document.getElementById('paypalButtons');
+                if (!container) return;
+
+                if (typeof paypal !== 'undefined') {
+                    initPayPalButtons();
+                    return;
                 }
+
+                if (retries <= 0) {
+                    container.innerHTML = '<div class="current-subscription-banner" style="background:#e67e22;"><h2>PayPal failed to load</h2><p>Check your internet/adblock and confirm PAYPAL_CLIENT_ID is correct.</p></div>';
+                    return;
+                }
+
+                setTimeout(function() {
+                    waitForPayPalAndInit(retries - 1);
+                }, 250);
             }
 
             // Close dropdowns when clicking outside
@@ -399,16 +460,17 @@ $isActive = $subscription && strtotime($subscription['expires_at']) > time();
                 document.addEventListener('DOMContentLoaded', function() {
                     initSearchToggle();
                 // initProfileToggle();
-                    initSubscriptionForm();
+                    waitForPayPalAndInit(20);
                     initPlanSelection();
                 });
             } else {
                 initSearchToggle();
                 //initProfileToggle();
-                initSubscriptionForm();
+                waitForPayPalAndInit(20);
                 initPlanSelection();
             }
         })();
     </script>
+
 </body>
 </html>

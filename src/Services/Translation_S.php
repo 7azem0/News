@@ -116,8 +116,8 @@ class TranslationService {
             ];
         } elseif ($plan === 'basic') {
             return [
-                'ar' => 'Arabic',
-                'en' => 'English'
+               // 'ar' => 'Arabic',
+               // 'en' => 'English'
             ];
         } elseif ($plan === 'pro' || $plan === 'sunless') {
             return $this->allLangs; // Full translation access

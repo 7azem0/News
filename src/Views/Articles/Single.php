@@ -1,5 +1,30 @@
-<?php include __DIR__ . '/../Layout/Header.php'; ?>
+<?php include __DIR__ . '/../Layout/Header.php'; 
 
+/**
+ * PHP-native word wrapping for TTS highlighting
+ */
+function ttsWrapWords(string $text): string
+{
+    $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    $isArabic = preg_match('/\p{Arabic}/u', $text);
+
+    if ($isArabic) {
+        return preg_replace_callback(
+            '/[\p{Arabic}\p{ArabicSupplement}\p{ArabicExtended-A}]+/u',
+            fn($m) => '<span class="tts-word">' . $m[0] . '</span>',
+            $text
+        );
+    }
+
+    // For non-Arabic languages, include punctuation and spaces in word spans
+    return preg_replace_callback(
+        '/(\p{L}+\p{M}*|\d+|[^\p{L}\p{M}\d\s]+|\s+)/u',
+        fn($m) => '<span class="tts-word">' . $m[0] . '</span>',
+        $text
+    );
+}
+?>
+?>
 <main class="container" style="max-width: 800px; padding-top: 2rem;">
 
     <article class="single-article">
@@ -13,7 +38,7 @@
                 <span>By <strong><?= htmlspecialchars($article['author'] ?? 'Staff Writer') ?></strong></span>
                 <span>•</span>
                 <span><?= date('F j, Y', strtotime($article['publishedAt'] ?? 'now')) ?></span>
-                
+
                 <?php if (empty($displayArticle['is_blocked'])): ?>
                     <button id="start-listen-btn" class="sans-text" style="background: #000; color: #fff; border: none; padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; letter-spacing: 1px; transition: transform 0.2s;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
@@ -56,7 +81,7 @@
             <?php if (!empty($displayArticle['is_blocked'])): ?>
                 <?= $displayArticle['content'] ?>
             <?php else: ?>
-                <?= nl2br(htmlspecialchars($displayArticle['content'] ?? $article['content'], ENT_QUOTES, 'UTF-8')) ?>
+                <?= nl2br(ttsWrapWords($displayArticle['content'] ?? $article['content'])) ?>
             <?php endif; ?>
         </div>
 
@@ -64,8 +89,8 @@
         <?php if (empty($displayArticle['is_blocked'])): ?>
             <div class="article-actions" style="margin-top: 2rem; padding: 1.5rem 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; display: flex; gap: 1rem; align-items: center;">
                 <!-- Like Button -->
-                <button 
-                    id="like-btn" 
+                <button
+                    id="like-btn"
                     data-article-id="<?= (int)$article['id'] ?>"
                     data-liked="<?= $isLiked ? 'true' : 'false' ?>"
                     style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 50px; transition: all 0.3s ease; <?= $isLiked ? 'background: #ffe6e6;' : 'background: #f5f5f5;' ?>"
@@ -73,10 +98,10 @@
                     onmouseout="this.style.transform='scale(1)'"
                 >
                     <svg id="heart-icon" width="24" height="24" viewBox="0 0 24 24" style="transition: all 0.3s ease;">
-                        <path 
-                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
-                            fill="<?= $isLiked ? '#ff4757' : 'none' ?>" 
-                            stroke="<?= $isLiked ? '#ff4757' : '#666' ?>" 
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                            fill="<?= $isLiked ? '#ff4757' : 'none' ?>"
+                            stroke="<?= $isLiked ? '#ff4757' : '#666' ?>"
                             stroke-width="2"
                         />
                     </svg>
@@ -86,8 +111,8 @@
                 </button>
 
                 <!-- Save Button -->
-                <button 
-                    id="save-btn" 
+                <button
+                    id="save-btn"
                     data-article-id="<?= (int)$article['id'] ?>"
                     data-saved="<?= $isSaved ? 'true' : 'false' ?>"
                     style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 50px; transition: all 0.3s ease; <?= $isSaved ? 'background: #e6f7ff;' : 'background: #f5f5f5;' ?>"
@@ -95,10 +120,10 @@
                     onmouseout="this.style.transform='scale(1)'"
                 >
                     <svg width="24" height="24" viewBox="0 0 24 24">
-                        <path 
-                            d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" 
-                            fill="<?= $isSaved ? '#1e90ff' : 'none' ?>" 
-                            stroke="<?= $isSaved ? '#1e90ff' : '#666' ?>" 
+                        <path
+                            d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"
+                            fill="<?= $isSaved ? '#1e90ff' : 'none' ?>"
+                            stroke="<?= $isSaved ? '#1e90ff' : '#666' ?>"
                             stroke-width="2"
                         />
                     </svg>
@@ -109,7 +134,7 @@
 
                 <!-- PDF Download Button -->
                 <?php if ($canDownloadPdf): ?>
-                    <a href="?page=article_download_pdf&id=<?= (int)$article['id'] ?>" 
+                    <a href="?page=article_download_pdf&id=<?= (int)$article['id'] ?>"
                        target="_blank"
                        style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 50px; transition: all 0.3s ease; background: #f5f5f5; text-decoration: none; color: #666;"
                        onmouseover="this.style.transform='scale(1.05)'; this.style.background='#e8f5e9'"
@@ -137,9 +162,22 @@
                     25% { transform: scale(1.3); }
                     50% { transform: scale(1.1); }
                 }
-                
+
                 .heart-animate {
                     animation: heartBeat 0.5s ease;
+                }
+
+                .tts-highlight {
+                    background-color: #007bff;
+                    color: white;
+                    padding: 2px 4px;
+                    border-radius: 3px;
+                    animation: tts-pulse 0.8s ease-in-out infinite;
+                }
+
+                @keyframes tts-pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
                 }
             </style>
 
@@ -173,7 +211,7 @@
                                 const newLiked = data.action === 'liked';
                                 this.dataset.liked = newLiked;
                                 likeCount.textContent = data.count;
-                                
+
                                 const path = heartIcon.querySelector('path');
                                 if (newLiked) {
                                     path.setAttribute('fill', '#ff4757');
@@ -209,10 +247,10 @@
                                 // Update UI
                                 const newSaved = data.action === 'saved';
                                 this.dataset.saved = newSaved;
-                                
+
                                 const path = this.querySelector('path');
                                 const span = this.querySelector('span');
-                                
+
                                 if (newSaved) {
                                     path.setAttribute('fill', '#1e90ff');
                                     path.setAttribute('stroke', '#1e90ff');
@@ -279,17 +317,17 @@
                         <label for="comment-content" style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333;">
                             Add a Comment
                         </label>
-                        <textarea 
-                            id="comment-content" 
-                            name="content" 
-                            rows="4" 
+                        <textarea
+                            id="comment-content"
+                            name="content"
+                            rows="4"
                             required
                             style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 1rem; resize: vertical;"
                             placeholder="Share your thoughts..."
                         ></textarea>
                     </div>
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s;"
                         onmouseover="this.style.transform='translateY(-2px)'"
                         onmouseout="this.style.transform='translateY(0)'"
@@ -394,10 +432,14 @@
         const waveform = document.getElementById('waveform');
         const prevBtn = document.getElementById('listen-prev');
         const nextBtn = document.getElementById('listen-next');
-        
+
         const synth = window.speechSynthesis;
         let utterance = null;
         let isPaused = false;
+        let highlightTimer = null;
+        let boundaryEventsSupported = false;
+        let isSpeaking = false;
+        let isStopped = false;
 
         if (!btn) return;
 
@@ -408,7 +450,14 @@
 
         closeBtn.onclick = () => {
             player.style.height = '0';
+            isSpeaking = false;
+            isStopped = true;
             synth.cancel();
+            clearHighlights(); // Immediately clear highlights
+            if (highlightTimer) {
+                clearInterval(highlightTimer);
+                highlightTimer = null;
+            }
             updateUI(false);
         };
 
@@ -453,7 +502,7 @@
             if (synth.speaking) {
                 const currentText = utterance.text;
                 synth.cancel();
-                startSpeaking(currentText); 
+                startSpeaking(currentText);
             }
         };
 
@@ -474,22 +523,84 @@
         if (synth.onvoiceschanged !== undefined) synth.onvoiceschanged = loadVoices;
         loadVoices();
 
-        function startSpeaking() {
+        // Word highlighting helper functions
+        function clearHighlights() {
+            document.querySelectorAll('.tts-highlight').forEach(el => {
+                el.classList.remove('tts-highlight');
+            });
+        }
+
+        function findWordAtPosition(text, charIndex) {
+            // For debugging
+            console.log("[TTS] Finding word at position:", charIndex, "in text:", text.substring(Math.max(0, charIndex-10), Math.min(text.length, charIndex+10)));
+
+            // Get all word spans from DOM
             const bodyEl = document.querySelector('.article-body');
-            const titleEl = document.querySelector('.serif-headline');
+            if (!bodyEl) return -1;
+
+            const ttsWords = bodyEl.querySelectorAll('.tts-word');
+            let lastIndex = 0;
+
+            for (let i = 0; i < ttsWords.length; i++) {
+                const wordSpan = ttsWords[i];
+                const wordText = wordSpan.textContent;
+
+                // Find the actual position of this word in the text
+                const wordStart = text.indexOf(wordText, lastIndex);
+                if (wordStart === -1) {
+                    console.log("[TTS] Word not found in text:", wordText);
+                    continue;
+                }
+
+                const wordEnd = wordStart + wordText.length;
+
+                if (charIndex >= wordStart && charIndex < wordEnd) {
+                    console.log("[TTS] Found word at index:", i, "word:", wordText, "range:", wordStart, "-", wordEnd);
+                    return i;
+                }
+
+                lastIndex = wordEnd;
+            }
+
+            console.log("[TTS] No word found at position:", charIndex);
+            return -1;
+        }
+
+        function highlightWord(wordIndex) {
+            const bodyEl = document.querySelector('.article-body');
+            if (!bodyEl) return null;
+
+            const ttsWords = bodyEl.querySelectorAll('.tts-word');
+            if (wordIndex < ttsWords.length) {
+                const wordSpan = ttsWords[wordIndex];
+                wordSpan.classList.add('tts-highlight');
+                return wordSpan;
+            }
+            return null;
+        }
+
+        function startSpeaking(textToReadParam) {
+            const bodyEl = document.querySelector('.article-body');
             const content = bodyEl ? bodyEl.innerText : '';
-            const title = titleEl ? titleEl.innerText : '';
-            const textToRead = title + ". " + content;
+            const textToRead = textToReadParam || content;
 
             if (!textToRead.trim()) return;
 
             // Stop any current reading
             synth.cancel();
             isPaused = false;
+            isStopped = false;
+
+            // Clear previous highlights and timer
+            clearHighlights();
+            if (highlightTimer) {
+                clearInterval(highlightTimer);
+                highlightTimer = null;
+            }
 
             const targetLang = langMap[currentLang] || 'en-US';
             const langPrefix = targetLang.split('-')[0].toLowerCase();
-            
+
             // Search for a voice that matches the language
             const findVoice = () => {
                 const allVoices = synth.getVoices();
@@ -501,23 +612,169 @@
             const selectedVoice = findVoice();
             console.log("[TTS] Selected Voice:", selectedVoice ? selectedVoice.name : "None found, using system default");
 
-            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance = new SpeechSynthesisUtterance(textToRead);
             utterance.lang = targetLang;
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
                 // Some browsers need the lang to match the voice exactly to avoid defaulting to English
                 utterance.lang = selectedVoice.lang;
             }
-            
+
             utterance.rate = parseFloat(speedSelect.value);
 
-            utterance.onstart = () => updateUI(true);
+            // Word highlighting variables
+            let currentHighlight = null;
+            boundaryEventsSupported = false;
+            let wordIndex = 0;
+            const ttsWords = bodyEl ? bodyEl.querySelectorAll('.tts-word') : [];
+            const wordCount = ttsWords.length;
+
+            console.log("[TTS] Text to read length:", textToRead.length, "Word count from DOM:", wordCount);
+            console.log("[TTS] First few words from DOM:", Array.from(ttsWords).slice(0, 5).map(w => w.textContent));
+            console.log("[TTS] Text to read (first 200 chars):", textToRead.substring(0, 200));
+            console.log("[TTS] HTML content (first 500 chars):", bodyEl ? bodyEl.innerHTML.substring(0, 500) : "No body element");
+
+            // Calculate estimated speech duration (rough estimate: 200 words per minute)
+            const wordsPerMinute = 200;
+            const rate = parseFloat(speedSelect.value);
+            const estimatedDuration = (wordCount / wordsPerMinute) * (60 / rate) * 1000; // in milliseconds
+            const wordInterval = estimatedDuration / wordCount;
+
+            utterance.onboundary = (event) => {
+                if (event.name === 'word') {
+                    boundaryEventsSupported = true;
+                    console.log("[TTS] Boundary event fired for word at charIndex:", event.charIndex);
+
+                    // Check if speaking has stopped or is paused before highlighting
+                    if (!isSpeaking || !synth.speaking || isStopped || isPaused) {
+                        console.log("[TTS] Speaking stopped or paused, ignoring boundary event");
+                        return;
+                    }
+
+                    // Clear previous highlight
+                    if (currentHighlight) {
+                        currentHighlight.classList.remove('tts-highlight');
+                    }
+
+                    // Find and highlight current word
+                    const currentWordIndex = findWordAtPosition(textToRead, event.charIndex);
+                    if (currentWordIndex !== -1) {
+                        currentHighlight = highlightWord(currentWordIndex);
+                        console.log("[TTS] Highlighted word at index:", currentWordIndex);
+                    }
+                }
+            };
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                updateUI(true);
+
+                // Check if boundary events are supported after a short delay
+                setTimeout(() => {
+                    console.log("[TTS] Language:", currentLang, "Boundary events supported:", boundaryEventsSupported, "Word count:", wordCount, "Word interval:", wordInterval);
+                    if (!boundaryEventsSupported && wordCount > 0) {
+                        console.log("[TTS] Boundary events not supported, using timer-based highlighting");
+                        // Start timer-based highlighting
+                        highlightTimer = setInterval(() => {
+                            // Check if speaking has stopped or is paused
+                            if (!isSpeaking || !synth.speaking || isPaused) {
+                                console.log("[TTS] Speaking stopped or paused, clearing timer");
+                                if (highlightTimer) {
+                                    clearInterval(highlightTimer);
+                                    highlightTimer = null;
+                                }
+                                return;
+                            }
+
+                            // Clear previous highlight
+                            if (currentHighlight) {
+                                currentHighlight.classList.remove('tts-highlight');
+                            }
+
+                            // Highlight current word
+                            if (wordIndex < wordCount) {
+                                currentHighlight = highlightWord(wordIndex);
+                                console.log("[TTS] Timer highlighted word at index:", wordIndex);
+                                wordIndex++;
+                            } else {
+                                // Stop timer when all words are highlighted
+                                if (highlightTimer) {
+                                    clearInterval(highlightTimer);
+                                    highlightTimer = null;
+                                }
+                            }
+                        }, wordInterval);
+                    } else if (boundaryEventsSupported) {
+                        console.log("[TTS] Boundary events supported, using native highlighting");
+                    } else {
+                        console.log("[TTS] No highlighting method available - no boundary events and no words found");
+                    }
+                }, 500); // Wait 500ms to see if boundary events fire
+            };
+
             utterance.onend = () => {
+                isSpeaking = false;
+                // Clear final highlight and timer
+                if (currentHighlight) {
+                    currentHighlight.classList.remove('tts-highlight');
+                }
+                if (highlightTimer) {
+                    clearInterval(highlightTimer);
+                    highlightTimer = null;
+                }
                 updateUI(false);
                 player.style.height = '0';
             };
+
+            utterance.onpause = () => {
+                // Pause timer if using timer-based highlighting
+                if (highlightTimer) {
+                    clearInterval(highlightTimer);
+                    highlightTimer = null;
+                }
+                // Note: Keep current highlight visible when paused
+            };
+
+            utterance.onresume = () => {
+                // Resume timer if using timer-based highlighting
+                if (!boundaryEventsSupported && wordCount > 0) {
+                    highlightTimer = setInterval(() => {
+                        // Check if speaking has stopped or is paused
+                        if (!isSpeaking || !synth.speaking || isPaused) {
+                            console.log("[TTS] Speaking stopped or paused, clearing timer");
+                            if (highlightTimer) {
+                                clearInterval(highlightTimer);
+                                highlightTimer = null;
+                            }
+                            return;
+                        }
+
+                        // Clear previous highlight
+                        if (currentHighlight) {
+                            currentHighlight.classList.remove('tts-highlight');
+                        }
+
+                        // Highlight current word
+                        if (wordIndex < wordCount) {
+                            currentHighlight = highlightWord(wordIndex);
+                            wordIndex++;
+                        } else {
+                            // Stop timer when all words are highlighted
+                            if (highlightTimer) {
+                                clearInterval(highlightTimer);
+                                highlightTimer = null;
+                            }
+                        }
+                    }, wordInterval);
+                }
+            };
+
             utterance.onerror = (e) => {
                 console.error("[TTS] Error:", e);
+                if (highlightTimer) {
+                    clearInterval(highlightTimer);
+                    highlightTimer = null;
+                }
                 updateUI(false);
             };
 

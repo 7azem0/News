@@ -252,6 +252,14 @@ class Router {
                 require_once self::CONTROLLERS_PATH . "Subscription_C.php";
                 (new SubscriptionController())->cancel();
                 break;
+            case "paypal_create_order":
+                require_once self::CONTROLLERS_PATH . "PayPal_C.php";
+                (new PayPalController())->create_order();
+                break;
+            case "paypal_capture_order":
+                require_once self::CONTROLLERS_PATH . "PayPal_C.php";
+                (new PayPalController())->capture_order();
+                break;
 
             // Comments (user-facing)
             case "comment_store":

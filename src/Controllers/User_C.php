@@ -52,7 +52,7 @@ class UserController {
             }
         }
 
-        include "views/User/Registeration.php";
+        include __DIR__ . '/../Views/User/Registeration.php';
     }
 
     public function ajax_check_username() {
@@ -119,7 +119,7 @@ class UserController {
             }
         }
 
-        include "views/User/Login.php";
+        include __DIR__ . '/../Views/User/Login.php';
     }
 
     // ... (existing helper methods if needed)
@@ -209,7 +209,7 @@ class UserController {
             }
         }
 
-        include "views/User/ForgotPassword.php";
+        include __DIR__ . '/../Views/User/ForgotPassword.php';
     }
 
     /* --------------------------------------------------------------
